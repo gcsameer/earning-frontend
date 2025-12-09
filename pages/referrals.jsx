@@ -1,120 +1,143 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import api from "../lib/api";
 
 export default function ReferralsPage() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [data, setData] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("access");
-    fetch(`${API_URL}/api/referrals/`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(setData);
+    async function fetchData() {
+      try {
+        const res = await api.get("/referrals/"); // uses your Django endpoint
+        setData(res.data);
+      } catch (err) {
+        console.error(err.response?.data || err.message);
+        setError("Failed to load referral stats.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
   }, []);
 
-  if (!data) return <p>Loading...</p>;
+  const handleCopy = async () => {
+    if (!data) return;
 
-  return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Referral Analytics</h2>
+    // Try to use referral_link from API, fall back to building from ref_code
+    let link = data.referral_link;
+    if (!link) {
+      const base =
+        typeof window !== "undefined"
+          ? window.location.origin
+          : process.env.NEXT_PUBLIC_SITE_URL || "";
+      const code = data.ref_code || data.referral_code || "";
+      link = `${base}/register?ref=${code}`;
+    }
 
-      <p>Total referred users: <strong>{data.total_referred}</strong></p>
-
-      <div className="mt-4 space-y-2">
-        {data.users.map((u, i) => (
-          <div key={i} className="p-3 border rounded bg-gray-50">
-            <p><strong>{u.username}</strong></p>
-            <p>Joined: {new Date(u.joined).toLocaleDateString()}</p>
-            <p>Coins: {u.coins}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-
-"use client";
-
-import { useState } from "react";
-
-export default function Dashboard() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-  const [message, setMessage] = useState(null);
-
-  const claimBonus = async () => {
-    const token = localStorage.getItem("access");
-
-    const res = await fetch(`${API_URL}/api/daily-bonus/`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    const data = await res.json();
-    setMessage(data.message || data.detail);
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
   };
 
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+  if (loading) {
+    return (
+      <div className="card mt-10 max-w-2xl mx-auto">
+        Loading referral stats…
+      </div>
+    );
+  }
 
-      <button
-        onClick={claimBonus}
-        className="px-4 py-2 bg-blue-600 text-white rounded"
-      >
-        Claim Daily Bonus
-      </button>
+  if (error) {
+    return (
+      <div className="card mt-10 max-w-2xl mx-auto text-red-400">{error}</div>
+    );
+  }
 
-      {message && <p className="mt-3 text-green-600">{message}</p>}
-    </div>
-  );
-}
+  const totalRefs = data?.total_referrals ?? data?.total_refs ?? 0;
+  const totalCoins = data?.total_earned_coins ?? data?.total_coins ?? 0;
 
-
-"use client";
-
-import { useEffect, useState } from "react";
-
-export default function Dashboard() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem("access");
-
-    fetch(`${API_URL}/api/me/`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
-      .then(setUser);
-  }, []);
-
-  if (!user) return <p>Loading...</p>;
+  const referralLink =
+    data?.referral_link ||
+    (typeof window !== "undefined" && data?.ref_code
+      ? `${window.location.origin}/register?ref=${data.ref_code}`
+      : "");
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold">Welcome, {user.username}</h1>
+    <div className="card mt-10 max-w-2xl mx-auto space-y-6">
+      <h1 className="text-2xl font-bold">Referrals</h1>
 
-      <div className="grid grid-cols-2 gap-4 mt-6">
-        <div className="p-4 bg-white rounded shadow">
-          <p className="text-gray-500 text-sm">Coins Balance</p>
-          <p className="text-3xl font-bold">{user.coins_balance}</p>
-        </div>
-
-        <div className="p-4 bg-white rounded shadow">
-          <p className="text-gray-500 text-sm">Referral Code</p>
-          <p className="text-xl font-semibold">{user.ref_code}</p>
+      {/* Referral link + copy button */}
+      <div>
+        <p className="label mb-1">Your referral link</p>
+        <div className="flex gap-2">
+          <input
+            className="input flex-1"
+            readOnly
+            value={referralLink || "No referral code yet"}
+          />
+          <button
+            onClick={handleCopy}
+            disabled={!referralLink}
+            className="btn whitespace-nowrap"
+          >
+            {copied ? "Copied!" : "Copy"}
+          </button>
         </div>
       </div>
 
-      <div className="mt-6">
-        <a href="/tasks" className="block p-4 bg-green-600 text-white rounded text-center">
-          View Tasks
-        </a>
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-slate-800/60 rounded-xl p-4">
+          <p className="text-sm text-slate-300">Total invited</p>
+          <p className="text-2xl font-bold mt-1">{totalRefs}</p>
+        </div>
+        <div className="bg-slate-800/60 rounded-xl p-4">
+          <p className="text-sm text-slate-300">Total earned (coins)</p>
+          <p className="text-2xl font-bold mt-1">{totalCoins}</p>
+        </div>
       </div>
+
+      {/* Optional: recent referrals table if your API returns it */}
+      {Array.isArray(data?.recent_referrals) &&
+        data.recent_referrals.length > 0 && (
+          <div>
+            <p className="label mb-2">Recent referrals</p>
+            <div className="border border-slate-700/60 rounded-xl overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-800/80">
+                  <tr>
+                    <th className="text-left px-4 py-2">User</th>
+                    <th className="text-left px-4 py-2">Joined</th>
+                    <th className="text-right px-4 py-2">Bonus (coins)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.recent_referrals.map((r) => (
+                    <tr
+                      key={r.id || r.username}
+                      className="border-t border-slate-800/60"
+                    >
+                      <td className="px-4 py-2">{r.username}</td>
+                      <td className="px-4 py-2">{r.joined_at}</td>
+                      <td className="px-4 py-2 text-right">
+                        {r.bonus_coins ?? r.coins ?? 0}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
     </div>
   );
 }

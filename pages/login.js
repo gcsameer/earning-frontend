@@ -1,6 +1,6 @@
 import { useState } from "react";
-import api, { setTokens } from "../lib/api";
 import { useRouter } from "next/router";
+import api, { setTokens } from "../lib/api";
 
 export default function Login() {
   const router = useRouter();
@@ -23,6 +23,7 @@ export default function Login() {
       setTokens(res.data.access, res.data.refresh);
       router.push("/dashboard");
     } catch (err) {
+      console.error(err);
       setError("Invalid credentials");
     } finally {
       setLoading(false);

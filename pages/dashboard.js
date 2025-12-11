@@ -1,63 +1,76 @@
 import { useEffect, useState } from "react";
-import api, { getAccessToken } from "../lib/api";
-import { useRouter } from "next/router";
+import api from "../lib/api";
 
 export default function Dashboard() {
-  const router = useRouter();
   const [me, setMe] = useState(null);
   const [wallet, setWallet] = useState(null);
+  const [bonusMessage, setBonusMessage] = useState(null);
+  const [loadingBonus, setLoadingBonus] = useState(false);
 
   useEffect(() => {
-    if (!getAccessToken()) {
-      router.replace("/login");
-      return;
+    async function load() {
+      try {
+        const [meRes, walletRes] = await Promise.all([
+          api.get("/me/"),
+          api.get("/wallet/"),
+        ]);
+        setMe(meRes.data);
+        setWallet(walletRes.data);
+      } catch (e) {
+        console.error(e);
+      }
     }
-    const fetchData = async () => {
-      const [meRes, walletRes] = await Promise.all([
-        api.get("/me/"),
-        api.get("/wallet/"),
-      ]);
-      setMe(meRes.data);
-      setWallet(walletRes.data);
-    };
-    fetchData().catch((err) => {
-      console.error(err);
-      router.replace("/login");
-    });
-  }, [router]);
+    load();
+  }, []);
 
-  if (!me || !wallet) return <p className="mt-10 text-center">Loading...</p>;
+  const claimBonus = async () => {
+    setLoadingBonus(true);
+    setBonusMessage(null);
+    try {
+      const res = await api.post("/daily-bonus/");
+      setBonusMessage(res.data.message + ` (+${res.data.bonus_coins} coins)`);
+      // refresh wallet/me
+      const walletRes = await api.get("/wallet/");
+      setWallet(walletRes.data);
+    } catch (e) {
+      console.error(e);
+      if (e.response && e.response.data && e.response.data.detail) {
+        setBonusMessage(e.response.data.detail);
+      } else {
+        setBonusMessage("Could not claim bonus.");
+      }
+    } finally {
+      setLoadingBonus(false);
+    }
+  };
 
   return (
-    <div className="mt-6 space-y-4">
-      <div className="card">
-        <h1 className="text-2xl font-bold mb-2">Hello, {me.username} 👋</h1>
-        <p className="text-slate-300 mb-2">
-          Referral Code: <span className="font-mono">{me.ref_code}</span>
-        </p>
-        <p className="text-slate-400 text-sm">
-          Share your referral code with friends to earn extra coins.
-        </p>
-      </div>
+    <div className="card mt-8">
+      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="card">
-          <p className="text-slate-400 text-sm mb-1">Coins Balance</p>
-          <p className="text-3xl font-bold">{wallet.coins_balance}</p>
-        </div>
-        <div className="card">
-          <p className="text-slate-400 text-sm mb-1">Approx Balance (Rs)</p>
-          <p className="text-3xl font-bold">
-            {wallet.approx_balance_rs.toFixed(2)}
-          </p>
-        </div>
-        <div className="card">
-          <p className="text-slate-400 text-sm mb-1">Fraud Score</p>
-          <p className="text-3xl font-bold text-amber-400">
-            {me.fraud_score.toFixed(1)}
-          </p>
-        </div>
-      </div>
+      {me && (
+        <p className="mb-2 text-slate-300">
+          Welcome, <span className="font-semibold">{me.username}</span>!
+        </p>
+      )}
+
+      {wallet && (
+        <p className="mb-4 text-slate-300">
+          Current balance:{" "}
+          <span className="font-semibold text-emerald-400">
+            {wallet.coins_balance} coins
+          </span>{" "}
+          (~ Rs {wallet.approx_balance_rs})
+        </p>
+      )}
+
+      <button className="btn" onClick={claimBonus} disabled={loadingBonus}>
+        {loadingBonus ? "Claiming..." : "Claim Daily Bonus"}
+      </button>
+
+      {bonusMessage && (
+        <p className="mt-3 text-sm text-emerald-300">{bonusMessage}</p>
+      )}
     </div>
   );
 }

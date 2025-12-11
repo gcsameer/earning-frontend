@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
-
-import api from "../lib/api";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import api from "../lib/api";
 
 export default function Register() {
   const router = useRouter();
@@ -14,14 +13,16 @@ export default function Register() {
     referral_code: "",
   });
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Auto-fill referral code from ?ref=XXXX
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const ref = params.get("ref");
     if (ref) {
-      setReferralCode(ref);
+      setForm((prev) => ({ ...prev, referral_code: ref }));
     }
   }, []);
 
@@ -31,27 +32,26 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-
-    // Frontend check before calling API
-    if (form.password !== form.confirm_password) {
-      setError("Passwords do not match.");
-      return;
-    }
-
+    setSuccess(null);
     setLoading(true);
+
     try {
-      await api.post("/auth/register/", {
+      const payload = {
         username: form.username,
         email: form.email,
         phone: form.phone,
         password: form.password,
         confirm_password: form.confirm_password,
-        referral_code: form.referral_code,
-      });
-      router.push("/login");
+        referral_code: form.referral_code || "",
+      };
+
+      await api.post("/auth/register/", payload);
+      setSuccess("Registration successful! You can now log in.");
+      setTimeout(() => router.push("/login"), 1500);
     } catch (err) {
-      // show backend errors if any
-      if (err.response?.data) {
+      console.error(err);
+      // Simple error handling
+      if (err.response && err.response.data) {
         setError(JSON.stringify(err.response.data));
       } else {
         setError("Registration failed. Please try again.");
@@ -64,7 +64,9 @@ export default function Register() {
   return (
     <div className="card mt-10 max-w-md mx-auto">
       <h1 className="text-2xl font-bold mb-4">Create an account</h1>
-      {error && <p className="mb-3 text-red-400 text-sm break-words">{error}</p>}
+      {error && <p className="mb-3 text-red-400 text-sm">{error}</p>}
+      {success && <p className="mb-3 text-emerald-400 text-sm">{success}</p>}
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="label">Username</label>
@@ -76,6 +78,7 @@ export default function Register() {
             required
           />
         </div>
+
         <div>
           <label className="label">Email</label>
           <input
@@ -84,8 +87,10 @@ export default function Register() {
             name="email"
             value={form.email}
             onChange={handleChange}
+            required
           />
         </div>
+
         <div>
           <label className="label">Phone</label>
           <input
@@ -93,8 +98,10 @@ export default function Register() {
             name="phone"
             value={form.phone}
             onChange={handleChange}
+            required
           />
         </div>
+
         <div>
           <label className="label">Password</label>
           <input
@@ -106,6 +113,7 @@ export default function Register() {
             required
           />
         </div>
+
         <div>
           <label className="label">Re-enter Password</label>
           <input
@@ -117,6 +125,7 @@ export default function Register() {
             required
           />
         </div>
+
         <div>
           <label className="label">Referral Code (optional)</label>
           <input
@@ -126,8 +135,9 @@ export default function Register() {
             onChange={handleChange}
           />
         </div>
+
         <button className="btn w-full" disabled={loading}>
-          {loading ? "Creating account..." : "Register"}
+          {loading ? "Registering..." : "Register"}
         </button>
       </form>
     </div>

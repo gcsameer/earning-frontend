@@ -1,57 +1,59 @@
 import { useEffect, useState } from "react";
-import api from "../lib/api";
+import { useRouter } from "next/router";
+import api, { getAccessToken } from "../lib/api";
 
-export default function WalletPage() {
-  const [wallet, setWallet] = useState(null);
+export default function Wallet() {
+  const router = useRouter();
+  const [data, setData] = useState(null);
+  const [err, setErr] = useState(null);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await api.get("/wallet/");
-        setWallet(res.data);
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    if (!getAccessToken()) router.replace("/login");
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!wallet) return <div className="card mt-8">Loading wallet...</div>;
+  const load = async () => {
+    setErr(null);
+    try {
+      const res = await api.get("/wallet/");
+      setData(res.data);
+    } catch (e) {
+      setErr("Failed to load wallet.");
+    }
+  };
 
   return (
-    <div className="card mt-8">
+    <div className="card">
       <h1 className="text-2xl font-bold mb-4">Wallet</h1>
+      {err && <p className="mb-3 text-red-400 text-sm">{err}</p>}
 
-      <p className="mb-2">
-        Coins:{" "}
-        <span className="font-semibold text-emerald-400">
-          {wallet.coins_balance}
-        </span>
-      </p>
-      <p className="mb-4 text-slate-300">
-        Approx balance: Rs {wallet.approx_balance_rs} (rate:{" "}
-        {wallet.coin_to_rs_rate} per coin)
-      </p>
+      {data ? (
+        <>
+          <p>
+            Coins: <b>{data.coins_balance}</b>
+          </p>
+          <p>
+            Approx Rs: <b>{data.approx_balance_rs}</b>
+          </p>
 
-      <h2 className="font-semibold mb-2">Recent transactions</h2>
-      {wallet.transactions.length === 0 && (
-        <p className="text-sm text-slate-400">No transactions yet.</p>
-      )}
-
-      <div className="space-y-2 max-h-80 overflow-y-auto mt-2">
-        {wallet.transactions.map((tx) => (
-          <div
-            key={tx.id}
-            className="flex justify-between text-sm border-b border-slate-800 py-1"
-          >
-            <span>{tx.type}</span>
-            <span>{tx.coins} coins</span>
-            <span className="text-slate-400 text-xs">
-              {new Date(tx.created_at).toLocaleString()}
-            </span>
+          <h2 className="text-lg font-semibold mt-6 mb-2">Transactions</h2>
+          <div className="space-y-2">
+            {(data.transactions || []).map((t) => (
+              <div key={t.id} className="p-3 rounded-lg border border-white/10">
+                <div className="flex justify-between">
+                  <b>{t.type}</b>
+                  <span>{t.coins} coins</span>
+                </div>
+                <div className="text-xs opacity-70">{t.note}</div>
+                <div className="text-xs opacity-50">{t.created_at}</div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      ) : (
+        <p>Loading...</p>
+      )}
     </div>
   );
 }

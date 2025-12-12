@@ -1,91 +1,52 @@
-// components/Layout.js
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { clearTokens, getAccessToken } from "../lib/api";
 import { useEffect, useState } from "react";
-import api, { getAccessToken, clearTokens } from "../lib/api";
 
 export default function Layout({ children }) {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [checking, setChecking] = useState(true);
+  const [authed, setAuthed] = useState(false);
 
-  // On route change / first load, check if we’re logged in
   useEffect(() => {
-    async function loadUser() {
-      if (typeof window === "undefined") return;
+    setAuthed(!!getAccessToken());
+  }, [router.asPath]);
 
-      const token = getAccessToken();
-      if (!token) {
-        setUser(null);
-        setChecking(false);
-        return;
-      }
-
-      try {
-        const res = await api.get("/me/");
-        setUser(res.data);
-      } catch (err) {
-        console.error("Failed to fetch /me/", err);
-        clearTokens();
-        setUser(null);
-      } finally {
-        setChecking(false);
-      }
-    }
-
-    loadUser();
-  }, [router.pathname]);
-
-  const handleLogout = () => {
+  const logout = () => {
     clearTokens();
-    setUser(null);
     router.push("/login");
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50">
-      <header className="border-b border-slate-800">
-        <div className="max-w-5xl mx-auto flex items-center justify-between py-4 px-4">
-          <Link href="/">
-            <span className="font-bold text-xl text-emerald-400 cursor-pointer">
-              NepEarn
-            </span>
+    <div>
+      <div className="w-full border-b border-white/10">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Link href="/" className="text-xl font-bold text-emerald-400">
+            NepEarn
           </Link>
 
-          <nav className="space-x-4 text-sm">
-            {user ? (
+          <div className="flex gap-5 items-center">
+            {authed ? (
               <>
-                <span className="text-slate-300">
-                  Hi, <span className="font-semibold">{user.username}</span>
-                </span>
-                <Link href="/dashboard" className="hover:text-emerald-400">
-                  Dashboard
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="text-rose-400 hover:text-rose-300"
-                >
+                <Link href="/dashboard">Dashboard</Link>
+                <Link href="/tasks">Tasks</Link>
+                <Link href="/wallet">Wallet</Link>
+                <Link href="/withdraw">Withdraw</Link>
+                <Link href="/referrals">Referrals</Link>
+                <button className="text-red-400" onClick={logout}>
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link href="/login" className="hover:text-emerald-400">
-                  Login
-                </Link>
-                <Link href="/register" className="hover:text-emerald-400">
-                  Register
-                </Link>
+                <Link href="/login">Login</Link>
+                <Link href="/register">Register</Link>
               </>
             )}
-          </nav>
+          </div>
         </div>
-      </header>
+      </div>
 
-      <main className="max-w-5xl mx-auto px-4 py-10">
-        {/* You could show a spinner while checking, but not required */}
-        {children}
-      </main>
+      <div className="max-w-5xl mx-auto px-4 py-8">{children}</div>
     </div>
   );
 }

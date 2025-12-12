@@ -1,108 +1,77 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import api, { getAccessToken, clearTokens } from "../lib/api";
+import api, { getAccessToken } from "../lib/api";
 
 export default function Dashboard() {
   const router = useRouter();
+  const [me, setMe] = useState(null);
+  const [msg, setMsg] = useState(null);
+  const [err, setErr] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const [user, setUser] = useState(null);
-  const [statusMsg, setStatusMsg] = useState("");
-  const [loadingUser, setLoadingUser] = useState(true);
-  const [claiming, setClaiming] = useState(false);
-
-  // Load logged-in user (protect page on refresh)
-  useEffect(() => {
-    async function loadMe() {
-      const token = getAccessToken();
-      if (!token) {
-        router.replace("/login");
-        return;
-      }
-
-      try {
-        const res = await api.get("/me/");
-        setUser(res.data);
-      } catch (err) {
-        console.error("Failed to load /me/", err);
-        clearTokens();
-        router.replace("/login");
-      } finally {
-        setLoadingUser(false);
-      }
+  const loadMe = async () => {
+    setErr(null);
+    try {
+      const res = await api.get("/me/");
+      setMe(res.data);
+    } catch (e) {
+      setErr("Failed to load profile.");
+    } finally {
+      setLoading(false);
     }
+  };
 
+  useEffect(() => {
+    if (!getAccessToken()) {
+      router.replace("/login");
+      return;
+    }
     loadMe();
-  }, [router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const claimDailyBonus = async () => {
-    setStatusMsg("");
-    setClaiming(true);
+  const claimBonus = async () => {
+    setMsg(null);
+    setErr(null);
     try {
       const res = await api.post("/daily-bonus/");
-      setStatusMsg(`✅ ${res.data.message} (+${res.data.bonus_coins} coins)`);
-
-      // Refresh user balance
-      const meRes = await api.get("/me/");
-      setUser(meRes.data);
-    } catch (err) {
-      console.error(err);
-      const msg =
-        err.response?.data?.detail ||
-        err.response?.data?.message ||
-        "Failed to claim daily bonus.";
-      setStatusMsg(`❌ ${msg}`);
-    } finally {
-      setClaiming(false);
+      setMsg(`Daily bonus claimed: ${res.data.bonus_coins} coins`);
+      await loadMe();
+    } catch (e) {
+      setErr(
+        e?.response?.data?.detail || "Failed to claim bonus. Try again later."
+      );
     }
   };
 
-  const logout = () => {
-    clearTokens();
-    router.push("/login");
-  };
-
-  if (loadingUser) {
-    return (
-      <div className="card mt-10 max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
-        <p className="text-slate-300">Loading...</p>
-      </div>
-    );
-  }
+  if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="card mt-10 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <button className="btn" onClick={logout}>
-          Logout
-        </button>
-      </div>
+    <div className="card max-w-2xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
 
-      {user && (
-        <div className="mt-4 text-slate-200 space-y-1">
+      {msg && <p className="mb-3 text-emerald-400 text-sm">{msg}</p>}
+      {err && <p className="mb-3 text-red-400 text-sm">{err}</p>}
+
+      {me ? (
+        <div className="space-y-2">
           <p>
-            <span className="text-slate-400">Username:</span> {user.username}
+            <span className="opacity-70">Username:</span> <b>{me.username}</b>
           </p>
           <p>
-            <span className="text-slate-400">Coins:</span> {user.coins_balance}
+            <span className="opacity-70">Coins:</span> <b>{me.coins_balance}</b>
           </p>
           <p>
-            <span className="text-slate-400">Referral Code:</span> {user.ref_code}
+            <span className="opacity-70">Referral Code:</span>{" "}
+            <b>{me.ref_code}</b>
           </p>
+
+          <button className="btn mt-4" onClick={claimBonus}>
+            Claim Daily Bonus
+          </button>
         </div>
-      )}
-
-      <div className="mt-6">
-        <button className="btn" onClick={claimDailyBonus} disabled={claiming}>
-          {claiming ? "Claiming..." : "Claim Daily Bonus"}
-        </button>
-      </div>
-
-      {statusMsg && (
-        <p className="mt-4 text-sm text-emerald-300 whitespace-pre-wrap">
-          {statusMsg}
-        </p>
+      ) : (
+        <p>Profile not available</p>
       )}
     </div>
   );

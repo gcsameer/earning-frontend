@@ -1,19 +1,25 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import api, { setTokens } from "../lib/api";
+import api, { setTokens, getAccessToken } from "../lib/api";
+import { useEffect } from "react";
 
 export default function Login() {
   const router = useRouter();
   const [form, setForm] = useState({ username: "", password: "" });
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    // If already logged in, go dashboard
+    if (getAccessToken()) router.replace("/dashboard");
+  }, [router]);
+
   const handleChange = (e) =>
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setError(null);
     setLoading(true);
 
     try {
@@ -22,17 +28,11 @@ export default function Login() {
         password: form.password,
       });
 
-      // save tokens + set axios Authorization header
       setTokens(res.data.access, res.data.refresh);
-
       router.push("/dashboard");
     } catch (err) {
       console.error(err);
-      const msg =
-        err.response?.data?.detail ||
-        err.response?.data?.non_field_errors?.[0] ||
-        "Invalid credentials";
-      setError(msg);
+      setError("Invalid credentials");
     } finally {
       setLoading(false);
     }
@@ -41,7 +41,6 @@ export default function Login() {
   return (
     <div className="card mt-10 max-w-md mx-auto">
       <h1 className="text-2xl font-bold mb-4">Login</h1>
-
       {error && <p className="mb-3 text-red-400 text-sm">{error}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -53,7 +52,6 @@ export default function Login() {
             value={form.username}
             onChange={handleChange}
             required
-            autoComplete="username"
           />
         </div>
 
@@ -66,7 +64,6 @@ export default function Login() {
             value={form.password}
             onChange={handleChange}
             required
-            autoComplete="current-password"
           />
         </div>
 

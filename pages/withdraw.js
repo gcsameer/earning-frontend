@@ -1,82 +1,87 @@
-import { useState } from "react";
-import api from "../lib/api";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import api, { getAccessToken } from "../lib/api";
 
-export default function WithdrawPage() {
-  const [form, setForm] = useState({
-    amount_rs: "",
-    method: "",
-    account_id: "",
-  });
-  const [message, setMessage] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+export default function Withdraw() {
+  const router = useRouter();
+  const [form, setForm] = useState({ amount_rs: "", method: "khalti", account_id: "" });
+  const [msg, setMsg] = useState(null);
+  const [err, setErr] = useState(null);
+  const [list, setList] = useState([]);
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  useEffect(() => {
+    if (!getAccessToken()) router.replace("/login");
+    loadList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage(null);
-    setError(null);
-    setLoading(true);
+  const loadList = async () => {
     try {
-      const res = await api.post("/withdraw/", form);
-      setMessage(res.data.message || "Withdraw request created.");
-    } catch (e) {
-      console.error(e);
-      if (e.response && e.response.data && e.response.data.detail) {
-        setError(e.response.data.detail);
-      } else {
-        setError("Withdraw failed.");
-      }
-    } finally {
-      setLoading(false);
+      const res = await api.get("/withdraws/");
+      setList(res.data || []);
+    } catch {}
+  };
+
+  const change = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setMsg(null);
+    setErr(null);
+    try {
+      await api.post("/withdraw/", form);
+      setMsg("Withdraw request submitted.");
+      setForm({ amount_rs: "", method: "khalti", account_id: "" });
+      await loadList();
+    } catch (e2) {
+      setErr(e2?.response?.data?.detail || "Withdraw failed.");
     }
   };
 
   return (
-    <div className="card mt-8 max-w-md mx-auto">
+    <div className="card">
       <h1 className="text-2xl font-bold mb-4">Withdraw</h1>
-      {message && <p className="mb-3 text-emerald-300 text-sm">{message}</p>}
-      {error && <p className="mb-3 text-red-400 text-sm">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {msg && <p className="mb-3 text-emerald-400 text-sm">{msg}</p>}
+      {err && <p className="mb-3 text-red-400 text-sm">{err}</p>}
+
+      <form onSubmit={submit} className="space-y-4 max-w-md">
         <div>
           <label className="label">Amount (Rs)</label>
-          <input
-            className="input"
-            name="amount_rs"
-            type="number"
-            min="0"
-            value={form.amount_rs}
-            onChange={handleChange}
-            required
-          />
+          <input className="input" name="amount_rs" value={form.amount_rs} onChange={change} required />
         </div>
+
         <div>
-          <label className="label">Method (e.g. esewa, khalti)</label>
-          <input
-            className="input"
-            name="method"
-            value={form.method}
-            onChange={handleChange}
-            required
-          />
+          <label className="label">Method</label>
+          <select className="input" name="method" value={form.method} onChange={change}>
+            <option value="khalti">Khalti</option>
+            <option value="esewa">eSewa</option>
+            <option value="bank">Bank</option>
+          </select>
         </div>
+
         <div>
-          <label className="label">Account / Phone</label>
-          <input
-            className="input"
-            name="account_id"
-            value={form.account_id}
-            onChange={handleChange}
-            required
-          />
+          <label className="label">Account ID (phone/account)</label>
+          <input className="input" name="account_id" value={form.account_id} onChange={change} required />
         </div>
-        <button className="btn w-full" disabled={loading}>
-          {loading ? "Submitting..." : "Request Withdraw"}
-        </button>
+
+        <button className="btn">Request Withdraw</button>
       </form>
+
+      <h2 className="text-lg font-semibold mt-8 mb-2">My Withdraw Requests</h2>
+      <div className="space-y-2">
+        {list.map((w) => (
+          <div key={w.id} className="p-3 rounded-lg border border-white/10">
+            <div className="flex justify-between">
+              <b>Rs {w.amount_rs}</b>
+              <span className="opacity-80">{w.status}</span>
+            </div>
+            <div className="text-xs opacity-70">{w.method} / {w.account_id}</div>
+            <div className="text-xs opacity-50">{w.created_at}</div>
+          </div>
+        ))}
+        {list.length === 0 && <p className="opacity-70 text-sm">No requests yet.</p>}
+      </div>
     </div>
   );
 }

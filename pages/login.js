@@ -5,15 +5,15 @@ import api, { setTokens } from "../lib/api";
 export default function Login() {
   const router = useRouter();
   const [form, setForm] = useState({ username: "", password: "" });
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
+    setError("");
     setLoading(true);
 
     try {
@@ -22,16 +22,17 @@ export default function Login() {
         password: form.password,
       });
 
-      // ✅ Correct way: save BOTH tokens as an object
-      setTokens({
-        access: res.data.access,
-        refresh: res.data.refresh,
-      });
+      // save tokens + set axios Authorization header
+      setTokens(res.data.access, res.data.refresh);
 
       router.push("/dashboard");
     } catch (err) {
       console.error(err);
-      setError("Invalid username or password");
+      const msg =
+        err.response?.data?.detail ||
+        err.response?.data?.non_field_errors?.[0] ||
+        "Invalid credentials";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -52,6 +53,7 @@ export default function Login() {
             value={form.username}
             onChange={handleChange}
             required
+            autoComplete="username"
           />
         </div>
 
@@ -64,6 +66,7 @@ export default function Login() {
             value={form.password}
             onChange={handleChange}
             required
+            autoComplete="current-password"
           />
         </div>
 

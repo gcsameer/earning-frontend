@@ -2,78 +2,73 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import api, { clearTokens, getAccessToken } from "../lib/api";
+import api, { getAccessToken, clearTokens } from "../lib/api";
 
 export default function Layout({ children }) {
   const router = useRouter();
-  const [isAuthed, setIsAuthed] = useState(false);
-  const [loadingUser, setLoadingUser] = useState(true);
-  const [username, setUsername] = useState(null);
+  const [user, setUser] = useState(null);
+  const [checking, setChecking] = useState(true);
 
-  // Check auth on page load / route change
+  // On route change / first load, check if we’re logged in
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    async function loadUser() {
+      if (typeof window === "undefined") return;
 
-    const token = getAccessToken();
+      const token = getAccessToken();
+      if (!token) {
+        setUser(null);
+        setChecking(false);
+        return;
+      }
 
-    if (!token) {
-      setIsAuthed(false);
-      setUsername(null);
-      setLoadingUser(false);
-      return;
-    }
-
-    // Optional: verify token by calling /me/
-    (async () => {
       try {
         const res = await api.get("/me/");
-        setIsAuthed(true);
-        setUsername(res.data.username);
+        setUser(res.data);
       } catch (err) {
-        console.warn("Failed to load user, clearing tokens", err);
+        console.error("Failed to fetch /me/", err);
         clearTokens();
-        setIsAuthed(false);
-        setUsername(null);
+        setUser(null);
       } finally {
-        setLoadingUser(false);
+        setChecking(false);
       }
-    })();
+    }
+
+    loadUser();
   }, [router.pathname]);
 
   const handleLogout = () => {
     clearTokens();
-    setIsAuthed(false);
-    setUsername(null);
+    setUser(null);
     router.push("/login");
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      {/* Top bar */}
+    <div className="min-h-screen bg-slate-950 text-slate-50">
       <header className="border-b border-slate-800">
         <div className="max-w-5xl mx-auto flex items-center justify-between py-4 px-4">
           <Link href="/">
-            <span className="font-semibold text-emerald-400 text-lg cursor-pointer">
+            <span className="font-bold text-xl text-emerald-400 cursor-pointer">
               NepEarn
             </span>
           </Link>
 
-          <nav className="flex items-center gap-4 text-sm">
-            {!loadingUser && isAuthed && (
+          <nav className="space-x-4 text-sm">
+            {user ? (
               <>
-                <span className="text-slate-400 hidden sm:inline">
-                  {username ? `Hi, ${username}` : "Logged in"}
+                <span className="text-slate-300">
+                  Hi, <span className="font-semibold">{user.username}</span>
                 </span>
+                <Link href="/dashboard" className="hover:text-emerald-400">
+                  Dashboard
+                </Link>
                 <button
                   onClick={handleLogout}
-                  className="px-3 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-xs"
+                  className="text-rose-400 hover:text-rose-300"
                 >
                   Logout
                 </button>
               </>
-            )}
-
-            {!loadingUser && !isAuthed && (
+            ) : (
               <>
                 <Link href="/login" className="hover:text-emerald-400">
                   Login
@@ -87,8 +82,10 @@ export default function Layout({ children }) {
         </div>
       </header>
 
-      {/* Page content */}
-      <main className="max-w-5xl mx-auto px-4 pb-16">{children}</main>
+      <main className="max-w-5xl mx-auto px-4 py-10">
+        {/* You could show a spinner while checking, but not required */}
+        {children}
+      </main>
     </div>
   );
 }

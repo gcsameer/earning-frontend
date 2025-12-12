@@ -1,41 +1,77 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import api, { getAccessToken } from "../../lib/api";
 
 export default function TaskPage() {
   const router = useRouter();
-  const { id } = router.query; // task ID from URL
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const { id } = router.query; // THIS IS user_task_id
 
   const [seconds, setSeconds] = useState(8);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState(null);
 
+  // Protect route
   useEffect(() => {
+    if (!getAccessToken()) {
+      router.replace("/login");
+    }
+  }, [router]);
+
+  // Countdown
+  useEffect(() => {
+    if (!id) return;
+    if (seconds <= 0) return;
+
     const timer = setInterval(() => {
       setSeconds((s) => (s > 0 ? s - 1 : 0));
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [seconds, id]);
+
+  const completeTask = async () => {
+    setErr(null);
+    setLoading(true);
+
+    try {
+      const res = await api.post(`/tasks/complete/${id}/`);
+      alert(`Task completed! +${res.data.reward_coins} coins`);
+      router.push("/wallet");
+    } catch (e) {
+      setErr(e?.response?.data?.detail || "Failed to complete task");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="p-6">
-      <h2>Task ID: {id}</h2>
+    <div className="card max-w-md mx-auto">
+      <h1 className="text-2xl font-bold mb-3">Task in Progress</h1>
 
-      <p className="text-lg mt-4">
-        Please wait {seconds} seconds before you can complete the task.
+      <p className="text-lg">
+        Please wait <b>{seconds}</b> seconds
       </p>
 
+      {err && <p className="text-red-400 text-sm mt-2">{err}</p>}
+
       <button
-        disabled={seconds > 0}
-        className={`mt-4 px-4 py-2 rounded text-white ${
-          seconds > 0 ? "bg-gray-400" : "bg-green-600"
-        }`}
-        onClick={() => alert("Task completed!")}
+        disabled={seconds > 0 || loading}
+        className="btn w-full mt-4"
+        onClick={completeTask}
       >
-        Complete Task
+        {loading
+          ? "Completing..."
+          : seconds > 0
+          ? "Waiting..."
+          : "Complete Task"}
       </button>
+
+      <p className="text-xs opacity-60 mt-3">
+        ⚠️ In real production, rewarded ads must be verified via Unity/AppLovin
+        callbacks. This delay is only a placeholder.
+      </p>
     </div>
   );
 }

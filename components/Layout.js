@@ -32,6 +32,7 @@ export default function Layout({ children }) {
                 <Link href="/wallet">Wallet</Link>
                 <Link href="/withdraw">Withdraw</Link>
                 <Link href="/referrals">Referrals</Link>
+                <Link href="/offerwall">Offerwall</Link>
                 <button className="text-red-400" onClick={logout}>
                   Logout
                 </button>

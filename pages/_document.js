@@ -31,6 +31,20 @@ export default function Document() {
       <body className="antialiased">
         <Main />
         <NextScript />
+        
+        {/* Social Bar Ad Script - Inserted right above closing </body> tag */}
+        <script
+          type="text/javascript"
+          src="https://pl28257064.effectivegatecpm.com/15/a5/91/15a591978053246df851ce2d41581e3d.js"
+        />
+        
+        {/* Guide Ad Script */}
+        <script
+          async="async"
+          data-cfasync="false"
+          src="https://pl28257067.effectivegatecpm.com/83a22a512cd440cc0f5cb139c22e9880/invoke.js"
+        />
+        <div id="container-83a22a512cd440cc0f5cb139c22e9880"></div>
       </body>
     </Html>
   );

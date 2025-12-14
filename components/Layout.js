@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { clearTokens, getAccessToken } from "../lib/api";
 import { useEffect, useState } from "react";
 import BannerAd from "./BannerAd";
+import Smartlink from "./Smartlink";
 
 export default function Layout({ children }) {
   const router = useRouter();

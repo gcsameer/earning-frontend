@@ -123,17 +123,24 @@ export default function Quiz({ task, onComplete }) {
         </div>
       )}
 
-      {error && (
-        <p className={`text-sm text-center mb-4 ${
-          error.includes('Wrong') ? 'text-red-400' : 'text-yellow-400'
-        }`}>
-          {error}
-        </p>
-      )}
+        {error && (
+          <div className={`mb-4 p-3 rounded-lg text-center ${
+            error.includes('Wrong') 
+              ? 'bg-red-500/10 border border-red-500/20' 
+              : 'bg-yellow-500/10 border border-yellow-500/20'
+          }`}>
+            <p className={`text-sm ${
+              error.includes('Wrong') ? 'text-red-400' : 'text-yellow-400'
+            }`}>
+              {error}
+            </p>
+          </div>
+        )}
 
-      <p className="text-xs text-slate-500 text-center">
-        Answer correctly to earn 50 coins
-      </p>
+        <p className="text-xs text-slate-400 text-center mt-4">
+          💰 Answer correctly to earn <span className="text-emerald-400 font-semibold">50 coins</span>
+        </p>
+      </div>
     </div>
   );
 }

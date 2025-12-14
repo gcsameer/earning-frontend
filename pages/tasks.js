@@ -202,71 +202,58 @@ export default function Tasks() {
               <div key={t.id} className="fade-in">
                 <div className="p-5 sm:p-6 rounded-xl border border-slate-800/50 bg-slate-800/30 hover:bg-slate-800/50 transition-all card-hover">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div>
-                    <p className="font-semibold">{t.title}</p>
-                    <p className="text-sm opacity-70">{t.description}</p>
+                    <div>
+                      <p className="font-semibold">{t.title}</p>
+                      <p className="text-sm opacity-70">{t.description}</p>
 
-                    <p className="text-sm mt-1">
+                      <p className="text-sm mt-1">
+                        {t.type === "scratch_card" && (
+                          <>Reward: <b>20-150 coins</b> (random)</>
+                        )}
+                        {t.type === "spin_wheel" && (
+                          <>Reward: <b>20-150 coins</b> (random)</>
+                        )}
+                        {t.type === "puzzle" && (
+                          <>Reward: <b>50 coins</b> (fixed)</>
+                        )}
+                        {t.type === "quiz" && (
+                          <>Reward: <b>50 coins</b> (fixed)</>
+                        )}
+                        {!["scratch_card", "spin_wheel", "puzzle", "quiz"].includes(t.type) && (
+                          <>Reward: <b>{t.reward_coins || "0"} coins</b></>
+                        )}
+                      </p>
+
+                      {t.type === "offerwall" && (
+                        <p className="text-xs opacity-70 mt-1">
+                          Opens CPX Offerwall (earn by completing offers)
+                        </p>
+                      )}
+
                       {t.type === "scratch_card" && (
-                        <>Reward: <b>20-150 coins</b> (random)</>
+                        <p className="text-xs opacity-70 mt-1">
+                          🎫 Scratch and win 20-150 coins instantly!
+                        </p>
                       )}
+
                       {t.type === "spin_wheel" && (
-                        <>Reward: <b>20-150 coins</b> (random)</>
+                        <p className="text-xs opacity-70 mt-1">
+                          🎡 Spin the wheel to win 20-150 coins instantly!
+                        </p>
                       )}
+
                       {t.type === "puzzle" && (
-                        <>Reward: <b>50 coins</b> (fixed)</>
+                        <p className="text-xs opacity-70 mt-1">
+                          🧩 Solve correctly to earn 50 coins!
+                        </p>
                       )}
+
                       {t.type === "quiz" && (
-                        <>Reward: <b>50 coins</b> (fixed)</>
+                        <p className="text-xs opacity-70 mt-1">
+                          ❓ Answer correctly to win 50 coins!
+                        </p>
                       )}
-                      {!["scratch_card", "spin_wheel", "puzzle", "quiz"].includes(t.type) && (
-                        <>Reward: <b>{t.reward_coins || "0"} coins</b></>
-                      )}
-                    </p>
-
-                    {t.type === "offerwall" && (
-                      <p className="text-xs opacity-70 mt-1">
-                        Opens CPX Offerwall (earn by completing offers)
-                      </p>
-                    )}
-
-
-                    {t.type === "scratch_card" && (
-                      <p className="text-xs opacity-70 mt-1">
-                        🎫 Scratch and win 20-150 coins instantly!
-                      </p>
-                    )}
-
-                    {t.type === "spin_wheel" && (
-                      <p className="text-xs opacity-70 mt-1">
-                        🎡 Spin the wheel to win 20-150 coins instantly!
-                      </p>
-                    )}
-
-                    {t.type === "puzzle" && (
-                      <p className="text-xs opacity-70 mt-1">
-                        🧩 Solve correctly to earn 50 coins!
-                      </p>
-                    )}
-
-                    {t.type === "quiz" && (
-                      <p className="text-xs opacity-70 mt-1">
-                        ❓ Answer correctly to win 50 coins!
-                      </p>
-                    )}
-
-                    {t.type === "puzzle" && (
-                      <p className="text-xs opacity-70 mt-1">
-                        🧩 Solve the puzzle to earn coins!
-                      </p>
-                    )}
-
-                    {t.type === "quiz" && (
-                      <p className="text-xs opacity-70 mt-1">
-                        ❓ Answer correctly to win coins!
-                      </p>
-                    )}
-                  </div>
+                    </div>
 
                     <button
                       className="btn w-full sm:w-auto min-w-[120px]"
@@ -286,18 +273,18 @@ export default function Tasks() {
                         "▶️ Start"
                       )}
                     </button>
-                </div>
-              </div>
-
-                    {/* Show ad after every 3rd task */}
-                    {(index + 1) % 3 === 0 && index < tasks.length - 1 && (
-                      <AdUnit 
-                        adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_TASKS_INLINE}
-                        className="my-4"
-                      />
-                    )}
                   </div>
-                ))}
+                </div>
+
+                {/* Show ad after every 3rd task */}
+                {(index + 1) % 3 === 0 && index < tasks.length - 1 && (
+                  <AdUnit 
+                    adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_TASKS_INLINE}
+                    className="my-4"
+                  />
+                )}
+              </div>
+            ))}
 
                 {/* Ad at the bottom of tasks list */}
                 <AdUnit 

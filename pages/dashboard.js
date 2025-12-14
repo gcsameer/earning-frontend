@@ -141,6 +141,33 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Mobile App Download Card */}
+      <div className="card fade-in">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+            <span className="text-3xl">📱</span>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold mb-1">Download Mobile App</h2>
+            <p className="text-sm text-slate-400">Get the NepEarn app for Android</p>
+          </div>
+        </div>
+        <p className="text-sm text-slate-300 mb-4">
+          Earn coins on the go! Download our Android app and enjoy all features with a better mobile experience.
+        </p>
+        <a
+          href="/api/download-apk"
+          download="NepEarn.apk"
+          className="btn w-full flex items-center justify-center gap-2 py-4 text-lg"
+        >
+          <span className="text-2xl">⬇️</span>
+          <span>Download APK</span>
+        </a>
+        <p className="text-xs text-slate-500 mt-3 text-center">
+          Version 1.0.0 • Android 5.0+ • Size: ~25 MB
+        </p>
+      </div>
+
       {/* Referral Link Card */}
       <div className="card fade-in">
         <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">

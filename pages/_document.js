@@ -15,14 +15,12 @@ export default function Document() {
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         
-        {/* Google AdSense - Only load if client ID is configured */}
-        {adClientId && (
-          <script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClientId}`}
-            crossOrigin="anonymous"
-          />
-        )}
+        {/* Google AdSense Verification Code */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8858320671117320"
+          crossOrigin="anonymous"
+        />
       </Head>
       <body className="antialiased">
         <Main />

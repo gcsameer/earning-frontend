@@ -71,9 +71,9 @@ export default function Puzzle({ task, onComplete }) {
   }
 
   return (
-    <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-      <h3 className="text-xl font-bold mb-4">{task.title}</h3>
-      <p className="text-sm text-slate-400 mb-4">{task.description}</p>
+    <div className="bg-slate-800/80 rounded-2xl p-4 sm:p-6 border border-slate-700/50">
+      <h3 className="text-xl sm:text-2xl font-bold mb-3 gradient-text">{task.title}</h3>
+      <p className="text-sm text-slate-400 mb-6">{task.description}</p>
 
       <div className="bg-slate-700 rounded-lg p-6 mb-4">
         <p className="text-2xl font-bold text-center mb-6">{puzzle.question}</p>
@@ -106,17 +106,24 @@ export default function Puzzle({ task, onComplete }) {
         </div>
       )}
 
-      {error && (
-        <p className={`text-sm text-center mb-4 ${
-          error.includes('Wrong') ? 'text-red-400' : 'text-yellow-400'
-        }`}>
-          {error}
-        </p>
-      )}
+        {error && (
+          <div className={`mb-4 p-3 rounded-lg text-center ${
+            error.includes('Wrong') 
+              ? 'bg-red-500/10 border border-red-500/20' 
+              : 'bg-yellow-500/10 border border-yellow-500/20'
+          }`}>
+            <p className={`text-sm ${
+              error.includes('Wrong') ? 'text-red-400' : 'text-yellow-400'
+            }`}>
+              {error}
+            </p>
+          </div>
+        )}
 
-      <p className="text-xs text-slate-500 text-center">
-        Solve the puzzle correctly to earn 50 coins
-      </p>
+        <p className="text-xs text-slate-400 text-center mt-4">
+          💰 Solve correctly to earn <span className="text-emerald-400 font-semibold">50 coins</span>
+        </p>
+      </div>
     </div>
   );
 }

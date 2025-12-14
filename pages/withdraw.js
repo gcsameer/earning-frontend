@@ -80,18 +80,37 @@ export default function Withdraw() {
   };
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <h1 className="text-2xl font-bold">Withdraw</h1>
-        <button className="btn" onClick={loadList} disabled={loadingList}>
-          {loadingList ? "Loading..." : "Refresh"}
-        </button>
-      </div>
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="card fade-in">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl font-bold mb-2 gradient-text">Withdraw</h1>
+            <p className="text-slate-400 text-sm">Cash out your earnings</p>
+          </div>
+          <button className="btn" onClick={loadList} disabled={loadingList}>
+            {loadingList ? (
+              <span className="flex items-center gap-2">
+                <span className="spinner"></span>
+                Loading...
+              </span>
+            ) : (
+              "🔄 Refresh"
+            )}
+          </button>
+        </div>
 
-      {msg && <p className="mb-3 text-emerald-400 text-sm">{msg}</p>}
-      {err && <p className="mb-3 text-red-400 text-sm">{err}</p>}
+        {msg && (
+          <div className="mb-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+            <p className="text-emerald-400 text-sm">{msg}</p>
+          </div>
+        )}
+        {err && (
+          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+            <p className="text-red-400 text-sm">{err}</p>
+          </div>
+        )}
 
-      <form onSubmit={submit} className="space-y-4 max-w-md">
+        <form onSubmit={submit} className="space-y-5 max-w-md">
         <div>
           <label className="label">Amount (Rs)</label>
           <input
@@ -126,41 +145,78 @@ export default function Withdraw() {
           />
         </div>
 
-        <button className="btn w-full" disabled={submitting}>
-          {submitting ? "Submitting..." : "Request Withdraw"}
-        </button>
-      </form>
+          <button className="btn w-full py-3" disabled={submitting}>
+            {submitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="spinner"></span>
+                Submitting...
+              </span>
+            ) : (
+              "💸 Request Withdraw"
+            )}
+          </button>
+        </form>
+      </div>
 
-      <h2 className="text-lg font-semibold mt-8 mb-2">My Withdraw Requests</h2>
+      {/* Withdraw Requests List */}
+      <div className="card fade-in">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <span>📋</span> My Withdraw Requests
+        </h2>
 
-      {loadingList ? (
-        <p>Loading...</p>
-      ) : list.length === 0 ? (
-        <p className="opacity-70 text-sm">No requests yet.</p>
-      ) : (
-        <div className="space-y-2">
-          {list.map((w) => (
-            <div key={w.id} className="p-3 rounded-lg border border-white/10">
-              <div className="flex justify-between items-center gap-3">
-                <b>Rs {w.amount_rs}</b>
-                <span className="opacity-80 capitalize">{w.status}</span>
-              </div>
-
-              <div className="text-xs opacity-70">
-                {w.method} / {w.account_id}
-              </div>
-
-              {w.admin_note ? (
-                <div className="text-xs text-yellow-200/80 mt-1">
-                  Admin: {w.admin_note}
-                </div>
-              ) : null}
-
-              <div className="text-xs opacity-50 mt-1">{formatDate(w.created_at)}</div>
+        {loadingList ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <span className="spinner mx-auto mb-4"></span>
+              <p className="text-slate-400">Loading requests...</p>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ) : list.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-5xl mb-4 opacity-30">📭</div>
+            <p className="text-slate-400 mb-2">No withdraw requests yet</p>
+            <p className="text-sm text-slate-500">Submit a request above to get started</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {list.map((w) => (
+              <div 
+                key={w.id} 
+                className="p-4 rounded-xl border border-slate-800/50 bg-slate-800/30 hover:bg-slate-800/50 transition-colors card-hover"
+              >
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-2xl">
+                        {w.status === "pending" ? "⏳" : w.status === "approved" ? "✅" : "❌"}
+                      </span>
+                      <div>
+                        <b className="text-xl text-white">Rs {w.amount_rs}</b>
+                        <span className={`ml-3 px-2 py-1 rounded text-xs font-medium capitalize ${
+                          w.status === "pending" ? "bg-yellow-500/20 text-yellow-400" :
+                          w.status === "approved" ? "bg-emerald-500/20 text-emerald-400" :
+                          "bg-red-500/20 text-red-400"
+                        }`}>
+                          {w.status}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-sm text-slate-400 ml-11">
+                      {w.method} / {w.account_id}
+                    </div>
+                    {w.admin_note && (
+                      <div className="text-sm text-yellow-300/80 mt-2 ml-11 p-2 rounded bg-yellow-500/10 border border-yellow-500/20">
+                        Admin: {w.admin_note}
+                      </div>
+                    )}
+                    <div className="text-xs text-slate-500 mt-2 ml-11">{formatDate(w.created_at)}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

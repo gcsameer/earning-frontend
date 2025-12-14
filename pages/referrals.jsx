@@ -87,64 +87,125 @@ export default function Referrals() {
   };
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <h1 className="text-2xl font-bold">Referrals</h1>
-        <button className="btn" onClick={loadAll} disabled={loading}>
-          {loading ? "Loading..." : "Refresh"}
-        </button>
-      </div>
-
-      {msg && <p className="mb-3 text-emerald-400 text-sm">{msg}</p>}
-      {err && <p className="mb-3 text-red-400 text-sm">{err}</p>}
-
-      <div className="p-4 rounded-xl border border-white/10 mb-6 space-y-2">
-        <p className="text-sm opacity-70">Your referral code:</p>
-        <p className="text-lg font-semibold">{me?.ref_code || "-"}</p>
-
-        <p className="text-sm opacity-70 mt-3">Your referral link:</p>
-        <p className="break-all">{referralLink || "-"}</p>
-
-        <div className="flex gap-3 mt-3 flex-wrap">
-          <button className="btn" onClick={copy} disabled={!referralLink}>
-            Copy link
-          </button>
-          <button className="btn" onClick={share} disabled={!referralLink}>
-            Share
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="card fade-in">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl font-bold mb-2 gradient-text">Referrals</h1>
+            <p className="text-slate-400 text-sm">Invite friends and earn bonus coins</p>
+          </div>
+          <button className="btn" onClick={loadAll} disabled={loading}>
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <span className="spinner"></span>
+                Loading...
+              </span>
+            ) : (
+              "🔄 Refresh"
+            )}
           </button>
         </div>
 
-        <p className="text-xs opacity-60">
-          Share this link. When someone registers using it, your backend awards referral bonus.
-        </p>
-      </div>
-
-      {loading ? (
-        <p>Loading...</p>
-      ) : data ? (
-        <>
-          <p>
-            Total referred: <b>{data.total_referred || 0}</b>
-          </p>
-
-          <div className="space-y-2 mt-4">
-            {(data.users || []).map((u, idx) => (
-              <div key={idx} className="p-3 rounded-lg border border-white/10">
-                <div className="flex justify-between items-center gap-3">
-                  <b>{u.username}</b>
-                  <span>{u.coins} coins</span>
-                </div>
-                <div className="text-xs opacity-70">{formatDate(u.joined)}</div>
-              </div>
-            ))}
-            {(data.users || []).length === 0 && (
-              <p className="opacity-70 text-sm">No referrals yet.</p>
-            )}
+        {msg && (
+          <div className="mb-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+            <p className="text-emerald-400 text-sm">{msg}</p>
           </div>
-        </>
-      ) : (
-        <p className="opacity-70">No data.</p>
-      )}
+        )}
+        {err && (
+          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+            <p className="text-red-400 text-sm">{err}</p>
+          </div>
+        )}
+
+        {/* Referral Code Card */}
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30 mb-6">
+          <div className="mb-4">
+            <p className="text-sm text-slate-300 mb-2">Your Referral Code</p>
+            <div className="flex items-center gap-3">
+              <p className="text-2xl font-bold font-mono text-emerald-400 bg-slate-900/50 px-4 py-2 rounded-lg">
+                {me?.ref_code || "-"}
+              </p>
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <p className="text-sm text-slate-300 mb-2">Your Referral Link</p>
+            <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-700/50">
+              <p className="break-all text-sm font-mono text-emerald-400">{referralLink || "-"}</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 mt-4">
+            <button className="btn flex-1" onClick={copy} disabled={!referralLink}>
+              📋 Copy Link
+            </button>
+            <button className="btn flex-1" onClick={share} disabled={!referralLink}>
+              📤 Share
+            </button>
+          </div>
+
+          <p className="text-xs text-slate-400 mt-4">
+            💡 Share this link. When someone registers using it, you both get bonus coins!
+          </p>
+        </div>
+
+        {/* Referrals Stats */}
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <span className="spinner mx-auto mb-4"></span>
+              <p className="text-slate-400">Loading referrals...</p>
+            </div>
+          </div>
+        ) : data ? (
+          <>
+            <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-6">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">👥</span>
+                <div>
+                  <p className="text-sm text-slate-400">Total Referred</p>
+                  <p className="text-2xl font-bold text-emerald-400">{data.total_referred || 0}</p>
+                </div>
+              </div>
+            </div>
+
+            <h2 className="text-xl font-semibold mb-4">Your Referrals</h2>
+            {(data.users || []).length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-5xl mb-4 opacity-30">👥</div>
+                <p className="text-slate-400 mb-2">No referrals yet</p>
+                <p className="text-sm text-slate-500">Share your referral link to invite friends!</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {(data.users || []).map((u, idx) => (
+                  <div 
+                    key={idx} 
+                    className="p-4 rounded-xl border border-slate-800/50 bg-slate-800/30 hover:bg-slate-800/50 transition-colors card-hover"
+                  >
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                          <span className="text-lg">👤</span>
+                        </div>
+                        <div>
+                          <b className="text-white">{u.username}</b>
+                          <p className="text-xs text-slate-500 mt-1">{formatDate(u.joined)}</p>
+                        </div>
+                      </div>
+                      <div className="text-emerald-400 font-semibold">{u.coins} coins</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-slate-400">No data available</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

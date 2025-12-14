@@ -2,26 +2,119 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Base Styles */
 body {
-  @apply bg-slate-950 text-slate-100;
+  @apply bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100;
+  @apply min-h-screen;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
 }
 
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Container */
 .container {
-  @apply max-w-4xl mx-auto px-4;
+  @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
 }
 
+/* Card Component - Professional with glassmorphism */
 .card {
-  @apply bg-slate-900 rounded-2xl shadow-lg p-6 mb-4;
+  @apply bg-slate-900/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-800/50;
+  @apply p-4 sm:p-6 mb-4;
+  @apply transition-all duration-300;
 }
 
+.card:hover {
+  @apply border-slate-700/50 shadow-2xl;
+}
+
+/* Button - Modern with better mobile touch targets */
 .btn {
-  @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium bg-emerald-500 hover:bg-emerald-600 transition;
+  @apply inline-flex items-center justify-center;
+  @apply px-4 py-2.5 sm:px-6 sm:py-3;
+  @apply rounded-xl font-semibold text-sm sm:text-base;
+  @apply bg-gradient-to-r from-emerald-500 to-emerald-600;
+  @apply hover:from-emerald-600 hover:to-emerald-700;
+  @apply active:scale-95;
+  @apply transition-all duration-200;
+  @apply shadow-lg shadow-emerald-500/20;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+  @apply min-h-[44px]; /* Better touch target for mobile */
 }
 
+.btn:focus {
+  @apply outline-none ring-2 ring-emerald-500 ring-offset-2 ring-offset-slate-900;
+}
+
+/* Input - Better mobile experience */
 .input {
-  @apply w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500;
+  @apply w-full px-4 py-3 rounded-xl;
+  @apply bg-slate-800/80 border border-slate-700/50;
+  @apply text-slate-100 placeholder:text-slate-500;
+  @apply focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500;
+  @apply transition-all duration-200;
+  @apply text-base; /* Prevents zoom on iOS */
 }
 
+.input:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Label */
 .label {
-  @apply block mb-1 text-sm text-slate-300;
+  @apply block mb-2 text-sm font-medium text-slate-300;
+}
+
+/* Mobile-first responsive utilities */
+@media (max-width: 640px) {
+  .card {
+    @apply p-4 rounded-xl;
+  }
+  
+  .btn {
+    @apply w-full justify-center;
+  }
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  @apply inline-block w-5 h-5 border-2 border-slate-300 border-t-emerald-500 rounded-full;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Glassmorphism effect */
+.glass {
+  @apply bg-slate-900/60 backdrop-blur-md border border-white/10;
+}
+
+/* Professional gradient text */
+.gradient-text {
+  @apply bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text text-transparent;
+}
+
+/* Card hover effect */
+.card-hover {
+  @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl;
 }

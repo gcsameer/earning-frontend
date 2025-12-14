@@ -36,11 +36,11 @@ export default function ScratchCard({ task, onComplete }) {
   };
 
   return (
-    <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-      <h3 className="text-xl font-bold mb-4">{task.title}</h3>
-      <p className="text-sm text-slate-400 mb-4">{task.description}</p>
+    <div className="bg-slate-800/80 rounded-2xl p-4 sm:p-6 border border-slate-700/50">
+      <h3 className="text-xl sm:text-2xl font-bold mb-3 gradient-text">{task.title}</h3>
+      <p className="text-sm text-slate-400 mb-6">{task.description}</p>
 
-      <div className="relative bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-lg p-8 mb-4 min-h-[200px] flex items-center justify-center">
+      <div className="relative bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl p-6 sm:p-8 mb-4 min-h-[200px] sm:min-h-[250px] flex items-center justify-center shadow-xl">
         {!scratched ? (
           <div className="text-center">
             <div className="text-6xl mb-4">🎫</div>
@@ -69,13 +69,16 @@ export default function ScratchCard({ task, onComplete }) {
         )}
       </div>
 
-      {error && (
-        <p className="text-red-400 text-sm text-center">{error}</p>
-      )}
+        {error && (
+          <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+            <p className="text-red-400 text-sm text-center">{error}</p>
+          </div>
+        )}
 
-      <p className="text-xs text-slate-500 text-center">
-        Reward: 20-150 coins (random)
-      </p>
+        <p className="text-xs text-slate-400 text-center mt-4">
+          💰 Reward: <span className="text-emerald-400 font-semibold">20-150 coins</span> (random)
+        </p>
+      </div>
     </div>
   );
 }

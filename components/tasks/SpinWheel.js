@@ -48,12 +48,12 @@ export default function SpinWheel({ task, onComplete }) {
   };
 
   return (
-    <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-      <h3 className="text-xl font-bold mb-4">{task.title}</h3>
-      <p className="text-sm text-slate-400 mb-4">{task.description}</p>
+    <div className="bg-slate-800/80 rounded-2xl p-4 sm:p-6 border border-slate-700/50">
+      <h3 className="text-xl sm:text-2xl font-bold mb-3 gradient-text">{task.title}</h3>
+      <p className="text-sm text-slate-400 mb-6">{task.description}</p>
 
       <div className="flex flex-col items-center">
-        <div className="relative w-64 h-64 mb-4">
+        <div className="relative w-64 h-64 sm:w-80 sm:h-80 mb-6">
           <div
             className="absolute inset-0 rounded-full border-8 border-slate-600"
             style={{
@@ -103,22 +103,34 @@ export default function SpinWheel({ task, onComplete }) {
           </div>
         )}
 
-        <button
-          onClick={handleSpin}
-          disabled={spinning || loading}
-          className="btn w-full max-w-xs"
-        >
-          {loading ? 'Spinning...' : spinning ? 'Spinning...' : reward ? 'Spin Again' : 'Spin Wheel'}
-        </button>
+          <button
+            onClick={handleSpin}
+            disabled={spinning || loading}
+            className="btn w-full max-w-xs py-3"
+          >
+            {loading || spinning ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="spinner"></span>
+                Spinning...
+              </span>
+            ) : reward ? (
+              '🎡 Spin Again'
+            ) : (
+              '🎡 Spin Wheel'
+            )}
+          </button>
+        </div>
+
+        {error && (
+          <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 w-full">
+            <p className="text-red-400 text-sm text-center">{error}</p>
+          </div>
+        )}
+
+        <p className="text-xs text-slate-400 text-center mt-4">
+          💰 Win between <span className="text-emerald-400 font-semibold">20-150 coins</span> per spin (random)
+        </p>
       </div>
-
-      {error && (
-        <p className="text-red-400 text-sm text-center mt-4">{error}</p>
-      )}
-
-      <p className="text-xs text-slate-500 text-center mt-4">
-        Win between 20-150 coins per spin (random)
-      </p>
     </div>
   );
 }

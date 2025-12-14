@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import api from "../lib/api";
 
 export default function Register() {
@@ -62,12 +63,28 @@ export default function Register() {
   };
 
   return (
-    <div className="card mt-10 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Create an account</h1>
-      {error && <p className="mb-3 text-red-400 text-sm">{error}</p>}
-      {success && <p className="mb-3 text-emerald-400 text-sm">{success}</p>}
+    <div className="max-w-md mx-auto">
+      <div className="card fade-in">
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl mb-4 shadow-lg shadow-emerald-500/30">
+            <span className="text-2xl">✨</span>
+          </div>
+          <h1 className="text-3xl font-bold mb-2 gradient-text">Create Account</h1>
+          <p className="text-slate-400 text-sm">Join thousands earning rewards</p>
+        </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+            <p className="text-red-400 text-sm">{error}</p>
+          </div>
+        )}
+        {success && (
+          <div className="mb-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+            <p className="text-emerald-400 text-sm">{success}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="label">Username</label>
           <input
@@ -136,10 +153,24 @@ export default function Register() {
           />
         </div>
 
-        <button className="btn w-full" disabled={loading}>
-          {loading ? "Registering..." : "Register"}
+        <button className="btn w-full py-3" disabled={loading}>
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="spinner"></span>
+              Registering...
+            </span>
+          ) : (
+            "Create Account"
+          )}
         </button>
       </form>
+
+      <p className="text-center text-sm text-slate-400 mt-6">
+        Already have an account?{" "}
+        <Link href="/login" className="text-emerald-400 hover:text-emerald-300 font-medium">
+          Login here
+        </Link>
+      </p>
     </div>
   );
 }

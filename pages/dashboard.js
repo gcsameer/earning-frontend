@@ -56,78 +56,106 @@ export default function Dashboard() {
     router.replace("/login");
   };
 
-  if (loading) return <p className="p-6">Loading...</p>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <span className="spinner mx-auto mb-4"></span>
+          <p className="text-slate-400">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-4">
-      <div className="card">
-        <div className="flex items-start justify-between gap-4">
+    <div className="max-w-6xl mx-auto space-y-6">
+      {/* Welcome Card */}
+      <div className="card fade-in">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold mb-3 gradient-text">Dashboard</h1>
             {me ? (
-              <div className="space-y-1">
-                <p>
-                  <span className="opacity-70">Username:</span>{" "}
-                  <b>{me.username}</b>
-                </p>
-                <p>
-                  <span className="opacity-70">Coins:</span>{" "}
-                  <b>{me.coins_balance}</b>
-                </p>
-                <p>
-                  <span className="opacity-70">Referral Code:</span>{" "}
-                  <b>{me.ref_code}</b>
-                </p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400">👤</span>
+                  <span className="text-slate-300">Username:</span>
+                  <b className="text-white">{me.username}</b>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400">💰</span>
+                  <span className="text-slate-300">Coins:</span>
+                  <b className="text-emerald-400 text-xl">{me.coins_balance}</b>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400">🔗</span>
+                  <span className="text-slate-300">Referral Code:</span>
+                  <b className="text-white font-mono bg-slate-800 px-2 py-1 rounded">{me.ref_code}</b>
+                </div>
               </div>
             ) : (
-              <p>Profile not available</p>
+              <p className="text-slate-400">Profile not available</p>
             )}
           </div>
-
-          <button className="btn" onClick={logoutNow}>
-            Logout
-          </button>
         </div>
 
-        {msg && <p className="mt-3 text-emerald-400 text-sm">{msg}</p>}
-        {err && <p className="mt-3 text-red-400 text-sm">{err}</p>}
+        {msg && (
+          <div className="mb-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+            <p className="text-emerald-400 text-sm">{msg}</p>
+          </div>
+        )}
+        {err && (
+          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+            <p className="text-red-400 text-sm">{err}</p>
+          </div>
+        )}
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          <button className="btn" onClick={claimBonus}>
-            Claim Daily Bonus
+        {/* Quick Actions Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-6">
+          <button 
+            className="btn flex-col py-4 h-auto" 
+            onClick={claimBonus}
+          >
+            <span className="text-2xl mb-1">🎁</span>
+            <span className="text-xs">Daily Bonus</span>
           </button>
-
-          <Link className="btn" href="/tasks">
-            Tasks
+          <Link className="btn flex-col py-4 h-auto" href="/tasks">
+            <span className="text-2xl mb-1">🎯</span>
+            <span className="text-xs">Tasks</span>
           </Link>
-
-          <Link className="btn" href="/wallet">
-            Wallet
+          <Link className="btn flex-col py-4 h-auto" href="/wallet">
+            <span className="text-2xl mb-1">💰</span>
+            <span className="text-xs">Wallet</span>
           </Link>
-
-          <Link className="btn" href="/withdraw">
-            Withdraw
+          <Link className="btn flex-col py-4 h-auto" href="/withdraw">
+            <span className="text-2xl mb-1">💸</span>
+            <span className="text-xs">Withdraw</span>
           </Link>
-
-          <Link className="btn" href="/referrals">
-            Referrals
+          <Link className="btn flex-col py-4 h-auto" href="/referrals">
+            <span className="text-2xl mb-1">👥</span>
+            <span className="text-xs">Referrals</span>
           </Link>
-
-          <Link className="btn" href="/offerwall">
-            Offerwall
+          <Link className="btn flex-col py-4 h-auto" href="/offerwall">
+            <span className="text-2xl mb-1">🎁</span>
+            <span className="text-xs">Offerwall</span>
           </Link>
         </div>
       </div>
 
-      <div className="card">
-        <p className="text-sm opacity-80">
-          Tip: Share this link to invite friends:
+      {/* Referral Link Card */}
+      <div className="card fade-in">
+        <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+          <span>🔗</span> Share Your Referral Link
+        </h2>
+        <p className="text-sm text-slate-400 mb-3">
+          Invite friends and earn bonus coins when they join!
         </p>
-        <p className="mt-2 break-all text-sm">
-          {typeof window !== "undefined" && me?.ref_code
-            ? `${window.location.origin}/register?ref=${me.ref_code}`
-            : "—"}
-        </p>
+        <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
+          <p className="break-all text-sm font-mono text-emerald-400">
+            {typeof window !== "undefined" && me?.ref_code
+              ? `${window.location.origin}/register?ref=${me.ref_code}`
+              : "—"}
+          </p>
+        </div>
       </div>
     </div>
   );

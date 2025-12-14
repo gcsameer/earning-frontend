@@ -88,9 +88,9 @@ export default function Quiz({ task, onComplete }) {
   }
 
   return (
-    <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-      <h3 className="text-xl font-bold mb-4">{task.title}</h3>
-      <p className="text-sm text-slate-400 mb-4">{task.description}</p>
+    <div className="bg-slate-800/80 rounded-2xl p-4 sm:p-6 border border-slate-700/50">
+      <h3 className="text-xl sm:text-2xl font-bold mb-3 gradient-text">{task.title}</h3>
+      <p className="text-sm text-slate-400 mb-6">{task.description}</p>
 
       <div className="bg-slate-700 rounded-lg p-6 mb-4">
         <p className="text-xl font-semibold mb-6 text-center">{quiz.question}</p>

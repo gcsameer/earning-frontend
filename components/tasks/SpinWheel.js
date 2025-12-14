@@ -24,23 +24,30 @@ export default function SpinWheel({ task, onComplete }) {
         device_id: '',
       });
 
-      const wonReward = response.data.reward_coins;
-      setReward(wonReward);
+      if (response.data && response.data.reward_coins) {
+        const wonReward = response.data.reward_coins;
+        setReward(wonReward);
 
-      // Calculate rotation to land on a segment
-      const randomRotations = 5 + Math.random() * 3; // 5-8 full rotations
-      const targetIndex = segments.indexOf(wonReward);
-      const finalRotation = rotation + (randomRotations * 360) + (targetIndex * segmentAngle);
-      
-      setRotation(finalRotation);
+        // Calculate rotation to land on a segment
+        const randomRotations = 5 + Math.random() * 3; // 5-8 full rotations
+        const targetIndex = segments.indexOf(wonReward);
+        const finalRotation = rotation + (randomRotations * 360) + (targetIndex * segmentAngle);
+        
+        setRotation(finalRotation);
 
-      // Wait for animation to complete
-      setTimeout(() => {
+        // Wait for animation to complete
+        setTimeout(() => {
+          setSpinning(false);
+          if (onComplete) onComplete(response.data);
+        }, 3000);
+      } else {
+        setError('Task completed but no reward received. Please contact support.');
         setSpinning(false);
-        if (onComplete) onComplete(response.data);
-      }, 3000);
+      }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to complete task');
+      console.error('Task completion error:', err);
+      const errorMessage = err.response?.data?.detail || err.response?.data?.message || err.message || 'Failed to complete task';
+      setError(errorMessage);
       setSpinning(false);
     } finally {
       setLoading(false);

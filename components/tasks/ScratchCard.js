@@ -20,15 +20,22 @@ export default function ScratchCard({ task, onComplete }) {
         device_id: '',
       });
 
-      setReward(response.data.reward_coins);
-      setRevealed(true);
-      
-      // Call onComplete callback after a short delay
-      setTimeout(() => {
-        if (onComplete) onComplete(response.data);
-      }, 2000);
+      if (response.data && response.data.reward_coins) {
+        setReward(response.data.reward_coins);
+        setRevealed(true);
+        
+        // Call onComplete callback after a short delay
+        setTimeout(() => {
+          if (onComplete) onComplete(response.data);
+        }, 2000);
+      } else {
+        setError('Task completed but no reward received. Please contact support.');
+        setScratched(false);
+      }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to complete task');
+      console.error('Task completion error:', err);
+      const errorMessage = err.response?.data?.detail || err.response?.data?.message || err.message || 'Failed to complete task';
+      setError(errorMessage);
       setScratched(false);
     } finally {
       setLoading(false);

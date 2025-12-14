@@ -59,13 +59,21 @@ export default function Quiz({ task, onComplete }) {
           device_id: '',
         });
 
-        setReward(response.data.reward_coins);
-
-        setTimeout(() => {
-          if (onComplete) onComplete(response.data);
-        }, 2000);
+        if (response.data && response.data.reward_coins) {
+          setReward(response.data.reward_coins);
+          
+          setTimeout(() => {
+            if (onComplete) onComplete(response.data);
+          }, 2000);
+        } else {
+          setError('Task completed but no reward received. Please contact support.');
+        }
       } catch (err) {
-        setError(err.response?.data?.detail || 'Failed to complete task');
+        console.error('Task completion error:', err);
+        const errorMessage = err.response?.data?.detail || err.response?.data?.message || err.message || 'Failed to complete task';
+        setError(errorMessage);
+        setAnswered(false);
+        setSelected(null);
       } finally {
         setLoading(false);
       }

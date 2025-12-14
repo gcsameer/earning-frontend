@@ -74,7 +74,7 @@ export default function ScratchCard({ task, onComplete }) {
       )}
 
       <p className="text-xs text-slate-500 text-center">
-        Reward: {task.reward_coins || '5-20'} coins
+        Reward: 20-150 coins (random)
       </p>
     </div>
   );

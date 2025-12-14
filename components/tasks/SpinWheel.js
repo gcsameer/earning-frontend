@@ -117,7 +117,7 @@ export default function SpinWheel({ task, onComplete }) {
       )}
 
       <p className="text-xs text-slate-500 text-center mt-4">
-        Win between 5-20 coins per spin
+        Win between 20-150 coins per spin (random)
       </p>
     </div>
   );

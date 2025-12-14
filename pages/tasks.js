@@ -175,13 +175,19 @@ export default function Tasks() {
 
                     <p className="text-sm mt-1">
                       {t.type === "scratch_card" && (
-                        <>Reward: <b>10-80 coins</b> (random)</>
+                        <>Reward: <b>20-150 coins</b> (random)</>
                       )}
                       {t.type === "spin_wheel" && (
-                        <>Reward: <b>10-50 coins</b> (random)</>
+                        <>Reward: <b>20-150 coins</b> (random)</>
                       )}
-                      {!["scratch_card", "spin_wheel"].includes(t.type) && (
-                        <>Reward: <b>{t.reward_coins || "5-20"} coins</b></>
+                      {t.type === "puzzle" && (
+                        <>Reward: <b>50 coins</b> (fixed)</>
+                      )}
+                      {t.type === "quiz" && (
+                        <>Reward: <b>50 coins</b> (fixed)</>
+                      )}
+                      {!["scratch_card", "spin_wheel", "puzzle", "quiz"].includes(t.type) && (
+                        <>Reward: <b>{t.reward_coins || "0"} coins</b></>
                       )}
                     </p>
 
@@ -194,13 +200,25 @@ export default function Tasks() {
 
                     {t.type === "scratch_card" && (
                       <p className="text-xs opacity-70 mt-1">
-                        🎫 Scratch and win 10-80 coins instantly!
+                        🎫 Scratch and win 20-150 coins instantly!
                       </p>
                     )}
 
                     {t.type === "spin_wheel" && (
                       <p className="text-xs opacity-70 mt-1">
-                        🎡 Spin the wheel to win 10-50 coins instantly!
+                        🎡 Spin the wheel to win 20-150 coins instantly!
+                      </p>
+                    )}
+
+                    {t.type === "puzzle" && (
+                      <p className="text-xs opacity-70 mt-1">
+                        🧩 Solve correctly to earn 50 coins!
+                      </p>
+                    )}
+
+                    {t.type === "quiz" && (
+                      <p className="text-xs opacity-70 mt-1">
+                        ❓ Answer correctly to win 50 coins!
                       </p>
                     )}
 

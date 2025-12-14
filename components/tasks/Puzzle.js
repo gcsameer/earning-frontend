@@ -115,7 +115,7 @@ export default function Puzzle({ task, onComplete }) {
       )}
 
       <p className="text-xs text-slate-500 text-center">
-        Solve the puzzle to earn {task.reward_coins || '5-20'} coins
+        Solve the puzzle correctly to earn 50 coins
       </p>
     </div>
   );

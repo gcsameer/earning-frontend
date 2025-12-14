@@ -132,7 +132,7 @@ export default function Quiz({ task, onComplete }) {
       )}
 
       <p className="text-xs text-slate-500 text-center">
-        Answer correctly to earn {task.reward_coins || '5-20'} coins
+        Answer correctly to earn 50 coins
       </p>
     </div>
   );

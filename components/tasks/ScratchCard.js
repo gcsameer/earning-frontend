@@ -69,16 +69,15 @@ export default function ScratchCard({ task, onComplete }) {
         )}
       </div>
 
-        {error && (
-          <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-            <p className="text-red-400 text-sm text-center">{error}</p>
-          </div>
-        )}
+      {error && (
+        <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+          <p className="text-red-400 text-sm text-center">{error}</p>
+        </div>
+      )}
 
-        <p className="text-xs text-slate-400 text-center mt-4">
-          💰 Reward: <span className="text-emerald-400 font-semibold">20-150 coins</span> (random)
-        </p>
-      </div>
+      <p className="text-xs text-slate-400 text-center mt-4">
+        💰 Reward: <span className="text-emerald-400 font-semibold">20-150 coins</span> (random)
+      </p>
     </div>
   );
 }

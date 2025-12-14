@@ -286,15 +286,13 @@ export default function Tasks() {
               </div>
             ))}
 
-                {/* Ad at the bottom of tasks list */}
-                <AdUnit 
-                  adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_TASKS_BOTTOM}
-                  className="mt-4"
-                />
-              </div>
-            )}
+            {/* Ad at the bottom of tasks list */}
+            <AdUnit 
+              adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_TASKS_BOTTOM}
+              className="mt-4"
+            />
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

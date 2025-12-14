@@ -137,10 +137,9 @@ export default function Quiz({ task, onComplete }) {
           </div>
         )}
 
-        <p className="text-xs text-slate-400 text-center mt-4">
-          💰 Answer correctly to earn <span className="text-emerald-400 font-semibold">50 coins</span>
-        </p>
-      </div>
+      <p className="text-xs text-slate-400 text-center mt-4">
+        💰 Answer correctly to earn <span className="text-emerald-400 font-semibold">50 coins</span>
+      </p>
     </div>
   );
 }

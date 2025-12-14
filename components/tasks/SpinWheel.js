@@ -103,34 +103,33 @@ export default function SpinWheel({ task, onComplete }) {
           </div>
         )}
 
-          <button
-            onClick={handleSpin}
-            disabled={spinning || loading}
-            className="btn w-full max-w-xs py-3"
-          >
-            {loading || spinning ? (
-              <span className="flex items-center justify-center gap-2">
-                <span className="spinner"></span>
-                Spinning...
-              </span>
-            ) : reward ? (
-              '🎡 Spin Again'
-            ) : (
-              '🎡 Spin Wheel'
-            )}
-          </button>
-        </div>
-
-        {error && (
-          <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 w-full">
-            <p className="text-red-400 text-sm text-center">{error}</p>
-          </div>
-        )}
-
-        <p className="text-xs text-slate-400 text-center mt-4">
-          💰 Win between <span className="text-emerald-400 font-semibold">20-150 coins</span> per spin (random)
-        </p>
+        <button
+          onClick={handleSpin}
+          disabled={spinning || loading}
+          className="btn w-full max-w-xs py-3"
+        >
+          {loading || spinning ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="spinner"></span>
+              Spinning...
+            </span>
+          ) : reward ? (
+            '🎡 Spin Again'
+          ) : (
+            '🎡 Spin Wheel'
+          )}
+        </button>
       </div>
+
+      {error && (
+        <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 w-full">
+          <p className="text-red-400 text-sm text-center">{error}</p>
+        </div>
+      )}
+
+      <p className="text-xs text-slate-400 text-center mt-4">
+        💰 Win between <span className="text-emerald-400 font-semibold">20-150 coins</span> per spin (random)
+      </p>
     </div>
   );
 }

@@ -174,7 +174,15 @@ export default function Tasks() {
                     <p className="text-sm opacity-70">{t.description}</p>
 
                     <p className="text-sm mt-1">
-                      Reward: <b>{t.reward_coins}</b> coins
+                      {t.type === "scratch_card" && (
+                        <>Reward: <b>10-80 coins</b> (random)</>
+                      )}
+                      {t.type === "spin_wheel" && (
+                        <>Reward: <b>10-50 coins</b> (random)</>
+                      )}
+                      {!["scratch_card", "spin_wheel"].includes(t.type) && (
+                        <>Reward: <b>{t.reward_coins || "5-20"} coins</b></>
+                      )}
                     </p>
 
                     {t.type === "offerwall" && (
@@ -183,21 +191,16 @@ export default function Tasks() {
                       </p>
                     )}
 
-                    {(t.type === "video") && (
-                      <p className="text-xs opacity-70 mt-1">
-                        Rewarded task (should be verified via Unity/AppLovin server callbacks)
-                      </p>
-                    )}
 
                     {t.type === "scratch_card" && (
                       <p className="text-xs opacity-70 mt-1">
-                        🎫 Scratch and win instant coins!
+                        🎫 Scratch and win 10-80 coins instantly!
                       </p>
                     )}
 
                     {t.type === "spin_wheel" && (
                       <p className="text-xs opacity-70 mt-1">
-                        🎡 Spin the wheel to win coins!
+                        🎡 Spin the wheel to win 10-50 coins instantly!
                       </p>
                     )}
 

@@ -28,11 +28,39 @@ export default function Login() {
         password: form.password,
       });
 
-      setTokens(res.data.access, res.data.refresh);
-      router.push("/dashboard");
+      if (res.data && res.data.access && res.data.refresh) {
+        setTokens(res.data.access, res.data.refresh);
+        router.push("/dashboard");
+      } else {
+        setError("Login failed: Invalid response from server");
+      }
     } catch (err) {
-      console.error(err);
-      setError("Invalid credentials");
+      console.error("Login error:", err);
+      console.error("Error response:", err.response);
+      
+      if (err.response) {
+        // Server responded with error
+        const status = err.response.status;
+        const data = err.response.data;
+        
+        if (status === 401) {
+          setError("Invalid username or password");
+        } else if (status === 400) {
+          setError(data.detail || data.message || "Invalid request. Please check your input.");
+        } else if (status === 404) {
+          setError("Login endpoint not found. Please check API configuration.");
+        } else if (status >= 500) {
+          setError("Server error. Please try again later.");
+        } else {
+          setError(data.detail || data.message || `Login failed (${status})`);
+        }
+      } else if (err.request) {
+        // Request made but no response
+        setError("Cannot connect to server. Please check your internet connection.");
+      } else {
+        // Error setting up request
+        setError("An error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

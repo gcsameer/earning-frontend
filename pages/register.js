@@ -37,6 +37,13 @@ export default function Register() {
     setLoading(true);
 
     try {
+      // Validate passwords match
+      if (form.password !== form.confirm_password) {
+        setError("Passwords do not match");
+        setLoading(false);
+        return;
+      }
+
       const payload = {
         username: form.username,
         email: form.email,
@@ -46,16 +53,51 @@ export default function Register() {
         referral_code: form.referral_code || "",
       };
 
-      await api.post("/auth/register/", payload);
-      setSuccess("Registration successful! You can now log in.");
-      setTimeout(() => router.push("/login"), 1500);
-    } catch (err) {
-      console.error(err);
-      // Simple error handling
-      if (err.response && err.response.data) {
-        setError(JSON.stringify(err.response.data));
+      const res = await api.post("/auth/register/", payload);
+      
+      if (res.status === 201 || res.data) {
+        setSuccess("Registration successful! You can now log in.");
+        setTimeout(() => router.push("/login"), 1500);
       } else {
-        setError("Registration failed. Please try again.");
+        setError("Registration failed: Invalid response from server");
+      }
+    } catch (err) {
+      console.error("Registration error:", err);
+      console.error("Error response:", err.response);
+      
+      if (err.response) {
+        // Server responded with error
+        const status = err.response.status;
+        const data = err.response.data;
+        
+        if (status === 400) {
+          // Validation errors
+          if (typeof data === 'object') {
+            const errors = [];
+            Object.keys(data).forEach(key => {
+              if (Array.isArray(data[key])) {
+                errors.push(`${key}: ${data[key].join(', ')}`);
+              } else {
+                errors.push(`${key}: ${data[key]}`);
+              }
+            });
+            setError(errors.join(' | ') || "Invalid input. Please check your information.");
+          } else {
+            setError(data.detail || data.message || "Invalid input. Please check your information.");
+          }
+        } else if (status === 404) {
+          setError("Registration endpoint not found. Please check API configuration.");
+        } else if (status >= 500) {
+          setError("Server error. Please try again later.");
+        } else {
+          setError(data.detail || data.message || `Registration failed (${status})`);
+        }
+      } else if (err.request) {
+        // Request made but no response
+        setError("Cannot connect to server. Please check your internet connection.");
+      } else {
+        // Error setting up request
+        setError("An error occurred. Please try again.");
       }
     } finally {
       setLoading(false);

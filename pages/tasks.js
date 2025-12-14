@@ -23,8 +23,13 @@ export default function Tasks() {
     try {
       const res = await api.get("/tasks/");
       setTasks(res.data || []);
+      if (!res.data || res.data.length === 0) {
+        setErr("No tasks available. Please contact support or check if tasks were created in the database.");
+      }
     } catch (e) {
-      setErr("Failed to load tasks.");
+      console.error("Tasks API Error:", e);
+      const errorMsg = e?.response?.data?.detail || e?.message || "Failed to load tasks.";
+      setErr(`Failed to load tasks: ${errorMsg}. Status: ${e?.response?.status || 'Unknown'}`);
     } finally {
       setLoading(false);
     }

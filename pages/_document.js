@@ -21,6 +21,12 @@ export default function Document() {
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8858320671117320"
           crossOrigin="anonymous"
         />
+        
+        {/* Popunder Ad Script */}
+        <script
+          type="text/javascript"
+          src="https://pl28256955.effectivegatecpm.com/b6/c0/98/b6c09889dcd3808e4126d8d064809950.js"
+        />
       </Head>
       <body className="antialiased">
         <Main />

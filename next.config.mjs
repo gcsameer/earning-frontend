@@ -41,6 +41,26 @@ const nextConfig = {
           },
         ],
       },
+      {
+        // Prevent aggressive caching of HTML pages
+        source: '/:path*.html',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate'
+          },
+        ],
+      },
+      {
+        // Cache static assets but allow revalidation
+        source: '/:path*.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          },
+        ],
+      },
     ];
   },
 };

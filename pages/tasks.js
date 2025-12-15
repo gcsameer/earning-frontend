@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import api, { getAccessToken } from "../lib/api";
 import AdUnit from "../components/AdUnit";
+import NativeAd from "../components/NativeAd";
 import ScratchCard from "../components/tasks/ScratchCard";
 import SpinWheel from "../components/tasks/SpinWheel";
 import Puzzle from "../components/tasks/Puzzle";

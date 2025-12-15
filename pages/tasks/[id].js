@@ -51,7 +51,10 @@ export default function TaskPage() {
     <div className="card max-w-md mx-auto">
       <h1 className="text-2xl font-bold mb-3">Task in Progress</h1>
 
-      {/* Ad at the top of task page */}
+      {/* Native Advanced Ad at the top of task page */}
+      <NativeAd className="mb-4" />
+      
+      {/* Banner Ad at the top of task page */}
       <AdUnit 
         adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_TASK_TOP}
         className="mb-4"

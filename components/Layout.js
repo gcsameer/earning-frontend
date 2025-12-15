@@ -2,8 +2,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { clearTokens, getAccessToken } from "../lib/api";
 import { useEffect, useState } from "react";
-import BannerAd from "./BannerAd";
-import Smartlink from "./Smartlink";
 
 export default function Layout({ children }) {
   const router = useRouter();
@@ -147,10 +145,6 @@ export default function Layout({ children }) {
 
       {/* Main Content with better spacing */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
-        {/* Banner Ad (468x60) */}
-        <div className="flex justify-center mb-4">
-          <BannerAd />
-        </div>
         <div className="fade-in">
           {children}
         </div>

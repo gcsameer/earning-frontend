@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import api, { getAccessToken } from "../../lib/api";
 import AdUnit from "../../components/AdUnit";
+import NativeAd from "../../components/NativeAd";
 
 export default function TaskPage() {
   const router = useRouter();

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import api, { getAccessToken } from "../lib/api";
+import SocialShare from "../components/SocialShare";
 
 function formatDate(iso) {
   try {
@@ -93,6 +94,12 @@ export default function Wallet() {
                   Rate: {data.coin_to_rs_rate} coins per Rs
                 </p>
               </div>
+              {data.coins_balance > 0 && (
+                <div className="pt-4 border-t border-emerald-500/20 mt-4">
+                  <p className="text-sm text-slate-300 mb-2">Share Your Earnings!</p>
+                  <SocialShare type="earnings" coins={data.coins_balance} />
+                </div>
+              )}
             </div>
 
             {/* Transactions */}

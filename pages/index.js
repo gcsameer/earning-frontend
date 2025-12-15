@@ -64,6 +64,40 @@ export default function Home() {
           <p className="text-sm text-slate-400">Cash out to eSewa, Khalti, or Bank</p>
         </div>
       </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+        <div className="card text-center">
+          <div className="text-2xl font-bold text-emerald-400 mb-1">10,000+</div>
+          <div className="text-sm text-slate-400">Active Users</div>
+        </div>
+        <div className="card text-center">
+          <div className="text-2xl font-bold text-blue-400 mb-1">Rs 50K+</div>
+          <div className="text-sm text-slate-400">Paid Out</div>
+        </div>
+        <div className="card text-center">
+          <div className="text-2xl font-bold text-purple-400 mb-1">4.8★</div>
+          <div className="text-sm text-slate-400">User Rating</div>
+        </div>
+        <div className="card text-center">
+          <div className="text-2xl font-bold text-orange-400 mb-1">100%</div>
+          <div className="text-sm text-slate-400">Free to Use</div>
+        </div>
+      </div>
+
+      {/* Call to Action */}
+      <div className="card text-center mt-8 bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30">
+        <h2 className="text-2xl font-bold mb-3 gradient-text">Ready to Start Earning?</h2>
+        <p className="text-slate-300 mb-6">Join thousands of users earning money daily</p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link href="/register" className="btn px-8 py-4 text-lg">
+            Get Started Free
+          </Link>
+          <Link href="/testimonials" className="btn px-8 py-4 text-lg bg-slate-800 hover:bg-slate-700 border border-slate-700">
+            See Success Stories
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

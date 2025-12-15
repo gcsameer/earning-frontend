@@ -59,6 +59,9 @@ export default function Layout({ children }) {
                   <Link href="/offerwall" className="px-3 py-2 rounded-lg hover:bg-slate-800/50 transition-colors text-sm lg:text-base">
                     Offerwall
                   </Link>
+                  <Link href="/faq" className="px-3 py-2 rounded-lg hover:bg-slate-800/50 transition-colors text-sm lg:text-base">
+                    FAQ
+                  </Link>
                   <button 
                     className="px-3 py-2 rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors text-sm lg:text-base"
                     onClick={logout}
@@ -121,6 +124,9 @@ export default function Layout({ children }) {
                   </Link>
                   <Link href="/offerwall" className="block px-4 py-3 rounded-lg hover:bg-slate-800/50 transition-colors" onClick={() => setMobileMenuOpen(false)}>
                     🎁 Offerwall
+                  </Link>
+                  <Link href="/faq" className="block px-4 py-3 rounded-lg hover:bg-slate-800/50 transition-colors" onClick={() => setMobileMenuOpen(false)}>
+                    ❓ FAQ
                   </Link>
                   <button 
                     className="block w-full text-left px-4 py-3 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors" 
@@ -185,6 +191,11 @@ export default function Layout({ children }) {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/testimonials" className="text-slate-400 hover:text-emerald-400 transition-colors">
+                    Success Stories
+                  </Link>
+                </li>
+                <li>
                   <Link href="/contact" className="text-slate-400 hover:text-emerald-400 transition-colors">
                     Contact
                   </Link>
@@ -194,6 +205,11 @@ export default function Layout({ children }) {
             <div>
               <h3 className="text-white font-semibold mb-3">Support</h3>
               <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="/faq" className="text-slate-400 hover:text-emerald-400 transition-colors">
+                    FAQ
+                  </Link>
+                </li>
                 <li>
                   <Link href="/contact" className="text-slate-400 hover:text-emerald-400 transition-colors">
                     Help Center

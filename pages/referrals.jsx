@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import api, { getAccessToken } from "../lib/api";
+import SocialShare from "../components/SocialShare";
 
 function formatDate(iso) {
   try {
@@ -135,13 +136,8 @@ export default function Referrals() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 mt-4">
-            <button className="btn flex-1" onClick={copy} disabled={!referralLink}>
-              📋 Copy Link
-            </button>
-            <button className="btn flex-1" onClick={share} disabled={!referralLink}>
-              📤 Share
-            </button>
+          <div className="mt-4">
+            <SocialShare type="referral" referralLink={referralLink} />
           </div>
 
           <p className="text-xs text-slate-400 mt-4">

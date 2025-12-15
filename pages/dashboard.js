@@ -2,30 +2,68 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import api, { clearTokens } from "../lib/api";
+import SocialShare from "../components/SocialShare";
 
 export default function Dashboard() {
   const router = useRouter();
 
   const [me, setMe] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
+  const [streak, setStreak] = useState(null);
+  const [achievements, setAchievements] = useState(null);
+  const [challenges, setChallenges] = useState(null);
   const [msg, setMsg] = useState(null);
   const [err, setErr] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const loadMe = async () => {
+  const loadAll = async () => {
     setErr(null);
     try {
-      const res = await api.get("/me/");
-      setMe(res.data);
+      // Load user profile
+      const meRes = await api.get("/me/");
+      setMe(meRes.data);
+
+      // Load analytics
+      try {
+        const analyticsRes = await api.get("/analytics/");
+        setAnalytics(analyticsRes.data);
+      } catch (e) {
+        console.log("Analytics not available");
+      }
+
+      // Load streak
+      try {
+        const streakRes = await api.post("/streak/");
+        setStreak(streakRes.data);
+      } catch (e) {
+        console.log("Streak not available");
+      }
+
+      // Load achievements
+      try {
+        const achievementsRes = await api.get("/achievements/");
+        setAchievements(achievementsRes.data);
+      } catch (e) {
+        console.log("Achievements not available");
+      }
+
+      // Load challenges
+      try {
+        const challengesRes = await api.get("/challenges/");
+        setChallenges(challengesRes.data);
+      } catch (e) {
+        console.log("Challenges not available");
+      }
+
       return true;
     } catch (e) {
-      // if token is invalid AND refresh fails, api.js will clear tokens
       const status = e?.response?.status;
       if (status === 401) {
         clearTokens();
         router.replace("/login");
         return false;
       }
-      setErr("Failed to load profile. Try again.");
+      setErr("Failed to load dashboard. Try again.");
       return false;
     } finally {
       setLoading(false);
@@ -33,9 +71,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    // DO NOT check getAccessToken() here
-    // because on refresh your access token might be expired and api.js will refresh it.
-    loadMe();
+    loadAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -45,15 +81,22 @@ export default function Dashboard() {
     try {
       const res = await api.post("/daily-bonus/");
       setMsg(`Daily bonus claimed: ${res.data.bonus_coins} coins`);
-      await loadMe();
+      await loadAll();
     } catch (e) {
       setErr(e?.response?.data?.detail || "Failed to claim bonus.");
     }
   };
 
-  const logoutNow = () => {
-    clearTokens();
-    router.replace("/login");
+  const claimChallenge = async (challengeId) => {
+    setMsg(null);
+    setErr(null);
+    try {
+      const res = await api.post("/challenges/", { challenge_id: challengeId });
+      setMsg(`Challenge reward claimed: ${res.data.reward} coins!`);
+      await loadAll();
+    } catch (e) {
+      setErr(e?.response?.data?.detail || "Failed to claim challenge.");
+    }
   };
 
   if (loading) {
@@ -67,12 +110,16 @@ export default function Dashboard() {
     );
   }
 
+  const referralLink = typeof window !== "undefined" && me?.ref_code
+    ? `${window.location.origin}/register?ref=${me.ref_code}`
+    : "";
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      {/* Welcome Card */}
+      {/* Welcome Card with Streak */}
       <div className="card fade-in">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div>
+          <div className="flex-1">
             <h1 className="text-3xl sm:text-4xl font-bold mb-3 gradient-text">Dashboard</h1>
             {me ? (
               <div className="space-y-2">
@@ -80,17 +127,27 @@ export default function Dashboard() {
                   <span className="text-slate-400">👤</span>
                   <span className="text-slate-300">Username:</span>
                   <b className="text-white">{me.username}</b>
+                  {me.user_level > 1 && (
+                    <span className="ml-2 px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded">
+                      Level {me.user_level}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-slate-400">💰</span>
                   <span className="text-slate-300">Coins:</span>
                   <b className="text-emerald-400 text-xl">{me.coins_balance}</b>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-400">🔗</span>
-                  <span className="text-slate-300">Referral Code:</span>
-                  <b className="text-white font-mono bg-slate-800 px-2 py-1 rounded">{me.ref_code}</b>
-                </div>
+                {streak && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400">🔥</span>
+                    <span className="text-slate-300">Login Streak:</span>
+                    <b className="text-orange-400">{streak.current_streak} days</b>
+                    {streak.bonus > 0 && (
+                      <span className="ml-2 text-emerald-400 text-sm">+{streak.bonus} coins bonus!</span>
+                    )}
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-slate-400">Profile not available</p>
@@ -141,6 +198,145 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Analytics Overview */}
+      {analytics && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="card fade-in">
+            <div className="text-center">
+              <div className="text-3xl mb-2">💰</div>
+              <div className="text-2xl font-bold text-emerald-400 mb-1">{analytics.earnings.today}</div>
+              <div className="text-sm text-slate-400">Coins Today</div>
+            </div>
+          </div>
+          <div className="card fade-in">
+            <div className="text-center">
+              <div className="text-3xl mb-2">📊</div>
+              <div className="text-2xl font-bold text-blue-400 mb-1">{analytics.earnings.this_week}</div>
+              <div className="text-sm text-slate-400">This Week</div>
+            </div>
+          </div>
+          <div className="card fade-in">
+            <div className="text-center">
+              <div className="text-3xl mb-2">🎯</div>
+              <div className="text-2xl font-bold text-purple-400 mb-1">{analytics.tasks.total_completed}</div>
+              <div className="text-sm text-slate-400">Total Tasks</div>
+            </div>
+          </div>
+          <div className="card fade-in">
+            <div className="text-center">
+              <div className="text-3xl mb-2">👥</div>
+              <div className="text-2xl font-bold text-orange-400 mb-1">{analytics.referrals.total}</div>
+              <div className="text-sm text-slate-400">Referrals</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Daily Challenges */}
+      {challenges && challenges.challenges && challenges.challenges.length > 0 && (
+        <div className="card fade-in">
+          <h2 className="text-xl font-bold mb-4 gradient-text flex items-center gap-2">
+            <span>🎯</span> Daily Challenges
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {challenges.challenges.map((challenge) => (
+              <div
+                key={challenge.id}
+                className={`p-4 rounded-xl border ${
+                  challenge.completed
+                    ? "bg-emerald-500/10 border-emerald-500/30"
+                    : "bg-slate-800/50 border-slate-700/50"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold text-white">{challenge.title}</h3>
+                  {challenge.completed && (
+                    <span className="text-emerald-400 text-sm">✓</span>
+                  )}
+                </div>
+                <p className="text-sm text-slate-400 mb-3">{challenge.description}</p>
+                <div className="mb-3">
+                  <div className="flex justify-between text-xs text-slate-400 mb-1">
+                    <span>Progress</span>
+                    <span>{challenge.progress} / {challenge.target}</span>
+                  </div>
+                  <div className="w-full bg-slate-700 rounded-full h-2">
+                    <div
+                      className="bg-emerald-500 h-2 rounded-full transition-all"
+                      style={{
+                        width: `${Math.min((challenge.progress / challenge.target) * 100, 100)}%`
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-emerald-400 font-semibold">
+                    Reward: {challenge.reward} coins
+                  </span>
+                  {challenge.completed && !challenge.claimed && (
+                    <button
+                      onClick={() => claimChallenge(challenge.id)}
+                      className="btn text-xs px-3 py-1"
+                    >
+                      Claim
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          {challenges.total_rewards_available > 0 && (
+            <div className="mt-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+              <p className="text-emerald-400 text-sm text-center">
+                💰 {challenges.total_rewards_available} coins available to claim!
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Achievements */}
+      {achievements && achievements.unlocked && achievements.unlocked.length > 0 && (
+        <div className="card fade-in">
+          <h2 className="text-xl font-bold mb-4 gradient-text flex items-center gap-2">
+            <span>🏆</span> Achievements ({achievements.total_unlocked}/{achievements.total_available})
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {achievements.unlocked.slice(0, 8).map((achievement) => (
+              <div
+                key={achievement.id}
+                className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-center"
+              >
+                <div className="text-3xl mb-2">{achievement.icon}</div>
+                <div className="text-sm font-semibold text-white mb-1">{achievement.name}</div>
+                <div className="text-xs text-slate-400">{achievement.description}</div>
+              </div>
+            ))}
+          </div>
+          {achievements.unlocked.length > 8 && (
+            <Link href="/achievements" className="block text-center mt-4 text-emerald-400 hover:text-emerald-300 text-sm">
+              View All Achievements →
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* Referral Link with Social Share */}
+      <div className="card fade-in">
+        <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+          <span>🔗</span> Share Your Referral Link
+        </h2>
+        <p className="text-sm text-slate-400 mb-3">
+          Invite friends and earn bonus coins when they join! You get 50 coins, they get 20 coins.
+        </p>
+        <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-4">
+          <p className="break-all text-sm font-mono text-emerald-400">
+            {referralLink || "—"}
+          </p>
+        </div>
+        <SocialShare type="referral" referralLink={referralLink} />
+      </div>
+
       {/* Mobile App Download Card */}
       <div className="card fade-in">
         <div className="flex items-center gap-3 mb-4">
@@ -166,23 +362,6 @@ export default function Dashboard() {
         <p className="text-xs text-slate-500 mt-3 text-center">
           Version 1.0.0 • Android 5.0+ • Size: ~25 MB
         </p>
-      </div>
-
-      {/* Referral Link Card */}
-      <div className="card fade-in">
-        <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span>🔗</span> Share Your Referral Link
-        </h2>
-        <p className="text-sm text-slate-400 mb-3">
-          Invite friends and earn bonus coins when they join!
-        </p>
-        <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
-          <p className="break-all text-sm font-mono text-emerald-400">
-            {typeof window !== "undefined" && me?.ref_code
-              ? `${window.location.origin}/register?ref=${me.ref_code}`
-              : "—"}
-          </p>
-        </div>
       </div>
     </div>
   );

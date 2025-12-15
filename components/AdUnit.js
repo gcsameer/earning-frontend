@@ -6,7 +6,8 @@ export default function AdUnit({
   className = '',
   style = {}
 }) {
-  const adClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+  // Use environment variable or fallback to hardcoded client ID (already in _document.js)
+  const adClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || 'ca-pub-8858320671117320';
   const adRef = useRef(null);
   const pushedRef = useRef(false);
 

@@ -96,13 +96,11 @@ self.addEventListener('activate', (event) => {
         }),
         // Take control of all pages immediately
         self.clients.claim(),
-        // Clear all caches and reload if version changed
+        // Clear all page caches to force fresh content
         caches.open(CACHE_NAME).then((cache) => {
           return cache.keys().then((keys) => {
-            // If cache exists but version is old, clear it
-            if (keys.length > 0) {
-              return cache.delete(request.url);
-            }
+            // Delete all cached pages
+            return Promise.all(keys.map(key => cache.delete(key)));
           });
         })
       ]);

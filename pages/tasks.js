@@ -193,7 +193,10 @@ export default function Tasks() {
           </div>
         ) : (
           <div className="space-y-4">
-          {/* Ad at the top of tasks list */}
+          {/* Native Advanced Ad at the top of tasks list */}
+          <NativeAd className="mb-4" />
+          
+          {/* Banner Ad at the top of tasks list */}
           <AdUnit 
             adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_TASKS_TOP}
             className="mb-4"

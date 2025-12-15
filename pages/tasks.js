@@ -210,13 +210,13 @@ export default function Tasks() {
                       <p className="font-semibold">{t.title}</p>
                       <p className="text-sm opacity-70">{t.description}</p>
 
-                      <p className="text-sm mt-1">
-                        {t.type === "scratch_card" && (
-                          <>Reward: <b>20-150 coins</b> (random)</>
-                        )}
-                        {t.type === "spin_wheel" && (
-                          <>Reward: <b>20-150 coins</b> (random)</>
-                        )}
+                               <p className="text-sm mt-1">
+                                 {t.type === "scratch_card" && (
+                                   <>Reward: <b>25-100 coins</b> (random)</>
+                                 )}
+                                 {t.type === "spin_wheel" && (
+                                   <>Reward: <b>25-100 coins</b> (random)</>
+                                 )}
                         {t.type === "puzzle" && (
                           <>Reward: <b>50 coins</b> (fixed)</>
                         )}
@@ -234,17 +234,17 @@ export default function Tasks() {
                         </p>
                       )}
 
-                      {t.type === "scratch_card" && (
-                        <p className="text-xs opacity-70 mt-1">
-                          🎫 Scratch and win 20-150 coins instantly!
-                        </p>
-                      )}
+                               {t.type === "scratch_card" && (
+                                 <p className="text-xs opacity-70 mt-1">
+                                   🎫 Scratch and win 25-100 coins instantly!
+                                 </p>
+                               )}
 
-                      {t.type === "spin_wheel" && (
-                        <p className="text-xs opacity-70 mt-1">
-                          🎡 Spin the wheel to win 20-150 coins instantly!
-                        </p>
-                      )}
+                               {t.type === "spin_wheel" && (
+                                 <p className="text-xs opacity-70 mt-1">
+                                   🎡 Spin the wheel to win 25-100 coins instantly!
+                                 </p>
+                               )}
 
                       {t.type === "puzzle" && (
                         <p className="text-xs opacity-70 mt-1">

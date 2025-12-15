@@ -28,7 +28,10 @@ export default function Dashboard() {
         const analyticsRes = await api.get("/analytics/");
         setAnalytics(analyticsRes.data);
       } catch (e) {
-        console.log("Analytics not available");
+        // Analytics optional - fail silently
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Analytics not available");
+        }
       }
 
       // Load streak
@@ -36,7 +39,10 @@ export default function Dashboard() {
         const streakRes = await api.post("/streak/");
         setStreak(streakRes.data);
       } catch (e) {
-        console.log("Streak not available");
+        // Streak optional - fail silently
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Streak not available");
+        }
       }
 
       // Load achievements
@@ -44,7 +50,10 @@ export default function Dashboard() {
         const achievementsRes = await api.get("/achievements/");
         setAchievements(achievementsRes.data);
       } catch (e) {
-        console.log("Achievements not available");
+        // Achievements optional - fail silently
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Achievements not available");
+        }
       }
 
       // Load challenges
@@ -52,7 +61,10 @@ export default function Dashboard() {
         const challengesRes = await api.get("/challenges/");
         setChallenges(challengesRes.data);
       } catch (e) {
-        console.log("Challenges not available");
+        // Challenges optional - fail silently
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Challenges not available");
+        }
       }
 
       return true;

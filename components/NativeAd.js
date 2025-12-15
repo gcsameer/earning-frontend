@@ -34,17 +34,21 @@ export default function NativeAd({
           window.adsbygoogle.push({});
           pushedRef.current = true;
           clearInterval(checkAdSense);
-          console.log('NativeAd: Ad pushed successfully', { adUnitId });
+          if (process.env.NODE_ENV === 'development') {
+            console.log('NativeAd: Ad pushed successfully', { adUnitId });
+          }
         } catch (error) {
           console.error('NativeAd push error:', error);
           clearInterval(checkAdSense);
         }
       } else if (attempts >= maxAttempts) {
-        console.warn('NativeAd: Timeout waiting for AdSense', { 
-          hasScript: !!window.adsbygoogle, 
-          hasElement: !!adRef.current,
-          adUnitId 
-        });
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('NativeAd: Timeout waiting for AdSense', {
+            hasScript: !!window.adsbygoogle, 
+            hasElement: !!adRef.current,
+            adUnitId 
+          });
+        }
         clearInterval(checkAdSense);
       }
     }, 100);

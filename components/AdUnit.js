@@ -13,7 +13,9 @@ export default function AdUnit({
 
   useEffect(() => {
     if (!adClientId || !adSlot || typeof window === 'undefined') {
-      console.log('AdUnit: Missing config', { adClientId, adSlot });
+      if (process.env.NODE_ENV === 'development') {
+        console.log('AdUnit: Missing config', { adClientId, adSlot });
+      }
       return;
     }
 
@@ -35,17 +37,21 @@ export default function AdUnit({
           window.adsbygoogle.push({});
           pushedRef.current = true;
           clearInterval(checkAdSense);
-          console.log('AdUnit: Ad pushed successfully', { adSlot });
+          if (process.env.NODE_ENV === 'development') {
+            console.log('AdUnit: Ad pushed successfully', { adSlot });
+          }
         } catch (error) {
           console.error('AdSense push error:', error);
           clearInterval(checkAdSense);
         }
       } else if (attempts >= maxAttempts) {
-        console.warn('AdUnit: Timeout waiting for AdSense', { 
-          hasScript: !!window.adsbygoogle, 
-          hasElement: !!adRef.current,
-          adSlot 
-        });
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('AdUnit: Timeout waiting for AdSense', {
+            hasScript: !!window.adsbygoogle, 
+            hasElement: !!adRef.current,
+            adSlot 
+          });
+        }
         clearInterval(checkAdSense);
       }
     }, 100);
@@ -58,12 +64,14 @@ export default function AdUnit({
 
   if (!adClientId || !adSlot) {
     // Show placeholder if ads not configured
-    console.warn('AdUnit: Missing configuration', { 
-      adClientId: !!adClientId, 
-      adSlot: !!adSlot,
-      envClientId: process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID,
-      envSlot: adSlot 
-    });
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('AdUnit: Missing configuration', {
+        adClientId: !!adClientId, 
+        adSlot: !!adSlot,
+        envClientId: process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID,
+        envSlot: adSlot 
+      });
+    }
     return (
       <div className={className} style={style}>
         <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 text-center" style={{ minHeight: '100px' }}>

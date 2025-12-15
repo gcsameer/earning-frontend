@@ -24,8 +24,10 @@ export default function Tasks() {
     try {
       const res = await api.get("/tasks/");
       const tasksData = res.data || [];
-      console.log("📋 Tasks received from API:", tasksData);
-      console.log("📊 Task types:", tasksData.map(t => ({ id: t.id, type: t.type, title: t.title, is_active: t.is_active })));
+      if (process.env.NODE_ENV === 'development') {
+        console.log("📋 Tasks received from API:", tasksData);
+        console.log("📊 Task types:", tasksData.map(t => ({ id: t.id, type: t.type, title: t.title, is_active: t.is_active })));
+      }
       setTasks(tasksData);
       if (!tasksData || tasksData.length === 0) {
         setErr("No tasks available. Please contact support or check if tasks were created in the database.");
@@ -35,9 +37,11 @@ export default function Tasks() {
         const hasSpinWheel = tasksData.some(t => t.type === "spin_wheel");
         const hasPuzzle = tasksData.some(t => t.type === "puzzle");
         const hasQuiz = tasksData.some(t => t.type === "quiz");
-        console.log("✅ Task type check:", { hasScratchCard, hasSpinWheel, hasPuzzle, hasQuiz });
-        if (!hasScratchCard || !hasSpinWheel) {
-          console.warn("⚠️ Missing tasks:", { hasScratchCard, hasSpinWheel });
+        if (process.env.NODE_ENV === 'development') {
+          console.log("✅ Task type check:", { hasScratchCard, hasSpinWheel, hasPuzzle, hasQuiz });
+          if (!hasScratchCard || !hasSpinWheel) {
+            console.warn("⚠️ Missing tasks:", { hasScratchCard, hasSpinWheel });
+          }
         }
       }
     } catch (e) {

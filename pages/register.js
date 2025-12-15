@@ -16,6 +16,10 @@ export default function Register() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [emailValidating, setEmailValidating] = useState(false);
+  const [emailError, setEmailError] = useState(null);
 
   // Auto-fill referral code from ?ref=XXXX
   useEffect(() => {
@@ -27,8 +31,50 @@ export default function Register() {
     }
   }, []);
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    
+    // Validate email in real-time
+    if (name === "email" && value) {
+      validateEmail(value);
+    } else if (name === "email") {
+      setEmailError(null);
+    }
+  };
+
+  const validateEmail = async (email) => {
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address");
+      setEmailValidating(false);
+      return;
+    }
+
+    setEmailValidating(true);
+    setEmailError(null);
+
+    try {
+      // Call backend API to verify email exists
+      const res = await api.post("/auth/verify-email/", { email });
+      if (res.data && !res.data.valid) {
+        setEmailError(res.data.error || "This email address does not exist. Please use a valid email.");
+      } else {
+        setEmailError(null);
+      }
+    } catch (err) {
+      // If API fails, just do basic validation (format is already checked)
+      // Don't show error if format is valid
+      if (emailRegex.test(email)) {
+        setEmailError(null);
+      } else {
+        setEmailError("Please enter a valid email address");
+      }
+    } finally {
+      setEmailValidating(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,9 +83,23 @@ export default function Register() {
     setLoading(true);
 
     try {
+      // Validate email if not already validated
+      if (emailError) {
+        setError("Please fix email validation errors before submitting");
+        setLoading(false);
+        return;
+      }
+
       // Validate passwords match
       if (form.password !== form.confirm_password) {
         setError("Passwords do not match");
+        setLoading(false);
+        return;
+      }
+
+      // Validate password strength
+      if (form.password.length < 8) {
+        setError("Password must be at least 8 characters long");
         setLoading(false);
         return;
       }
@@ -140,14 +200,29 @@ export default function Register() {
 
         <div>
           <label className="label">Email</label>
-          <input
-            className="input"
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
+          <div className="relative">
+            <input
+              className={`input ${emailError ? 'border-red-500' : ''} ${emailValidating ? 'pr-20' : ''}`}
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              onBlur={() => form.email && validateEmail(form.email)}
+              placeholder="Enter your email address"
+              required
+            />
+            {emailValidating && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <span className="spinner-small"></span>
+              </div>
+            )}
+          </div>
+          {emailError && (
+            <p className="text-red-400 text-xs mt-1">{emailError}</p>
+          )}
+          {!emailError && form.email && !emailValidating && (
+            <p className="text-emerald-400 text-xs mt-1">✓ Valid email address</p>
+          )}
         </div>
 
         <div>
@@ -163,26 +238,72 @@ export default function Register() {
 
         <div>
           <label className="label">Password</label>
-          <input
-            className="input"
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+          <div className="relative">
+            <input
+              className="input pr-10"
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="Create a strong password"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
 
         <div>
           <label className="label">Re-enter Password</label>
-          <input
-            className="input"
-            type="password"
-            name="confirm_password"
-            value={form.confirm_password}
-            onChange={handleChange}
-            required
-          />
+          <div className="relative">
+            <input
+              className="input pr-10"
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirm_password"
+              value={form.confirm_password}
+              onChange={handleChange}
+              placeholder="Confirm your password"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
+              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+            >
+              {showConfirmPassword ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              )}
+            </button>
+          </div>
+          {form.confirm_password && form.password !== form.confirm_password && (
+            <p className="text-red-400 text-xs mt-1">Passwords do not match</p>
+          )}
+          {form.confirm_password && form.password === form.confirm_password && form.password && (
+            <p className="text-emerald-400 text-xs mt-1">✓ Passwords match</p>
+          )}
         </div>
 
         <div>

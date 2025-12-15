@@ -2,6 +2,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { clearTokens, getAccessToken } from "../lib/api";
 import { useEffect, useState } from "react";
+import CookieConsent from "./CookieConsent";
 
 export default function Layout({ children }) {
   const router = useRouter();
@@ -153,11 +154,71 @@ export default function Layout({ children }) {
       {/* Footer */}
       <footer className="mt-auto border-t border-white/10 bg-slate-900/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <p className="text-center text-sm text-slate-400">
-            © {new Date().getFullYear()} NepEarn. Earn rewards by completing tasks.
-          </p>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div>
+              <h3 className="text-white font-semibold mb-3">NepEarn</h3>
+              <p className="text-slate-400 text-sm">
+                Earn rewards by completing simple tasks and playing games.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-white font-semibold mb-3">Legal</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="/privacy-policy" className="text-slate-400 hover:text-emerald-400 transition-colors">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms-of-service" className="text-slate-400 hover:text-emerald-400 transition-colors">
+                    Terms of Service
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-white font-semibold mb-3">Company</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="/about" className="text-slate-400 hover:text-emerald-400 transition-colors">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="text-slate-400 hover:text-emerald-400 transition-colors">
+                    Contact
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-white font-semibold mb-3">Support</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="/contact" className="text-slate-400 hover:text-emerald-400 transition-colors">
+                    Help Center
+                  </Link>
+                </li>
+                <li>
+                  <a href="mailto:support@nepearn.com" className="text-slate-400 hover:text-emerald-400 transition-colors">
+                    support@nepearn.com
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-slate-700 pt-4">
+            <p className="text-center text-sm text-slate-400">
+              © {new Date().getFullYear()} NepEarn. All rights reserved. | 
+              <Link href="/privacy-policy" className="ml-1 text-emerald-400 hover:text-emerald-300">Privacy</Link> | 
+              <Link href="/terms-of-service" className="ml-1 text-emerald-400 hover:text-emerald-300">Terms</Link>
+            </p>
+          </div>
         </div>
       </footer>
+
+      {/* Cookie Consent Banner */}
+      <CookieConsent />
     </div>
   );
 }

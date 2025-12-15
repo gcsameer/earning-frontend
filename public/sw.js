@@ -1,7 +1,8 @@
 // Service Worker for PWA
-// Version updated to force cache refresh
-const CACHE_NAME = 'nep-earn-v2';
-const STATIC_CACHE_NAME = 'nep-earn-static-v2';
+// Version updated to force cache refresh - increment on each deployment
+const CACHE_NAME = 'nep-earn-v3';
+const STATIC_CACHE_NAME = 'nep-earn-static-v3';
+const CACHE_VERSION = 'v3'; // Update this on each deployment
 
 // Static assets to cache (images, fonts, etc.)
 const staticAssetsToCache = [
@@ -13,10 +14,11 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE_NAME).then((cache) => {
       return cache.addAll(staticAssetsToCache);
+    }).then(() => {
+      // Force activation immediately
+      return self.skipWaiting();
     })
   );
-  // Force activation of new service worker
-  self.skipWaiting();
 });
 
 // Fetch event - Network first strategy for pages, cache for static assets
@@ -39,20 +41,19 @@ self.addEventListener('fetch', (event) => {
   // Network first for HTML pages (always get fresh content)
   if (request.headers.get('accept')?.includes('text/html')) {
     event.respondWith(
-      fetch(request)
+      fetch(request, {
+        cache: 'no-store', // Never cache HTML pages
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
         .then((response) => {
-          // Clone the response
-          const responseToCache = response.clone();
-          // Cache successful responses
-          if (response.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseToCache);
-            });
-          }
+          // Don't cache HTML pages - always fetch fresh
           return response;
         })
         .catch(() => {
-          // Fallback to cache if network fails
+          // Fallback to cache only if network completely fails
           return caches.match(request).then((cachedResponse) => {
             return cachedResponse || new Response('Offline', { status: 503 });
           });
@@ -86,17 +87,33 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          // Delete old caches
+      return Promise.all([
+        // Delete ALL old caches (aggressive cleanup for mobile)
+        ...cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME && cacheName !== STATIC_CACHE_NAME) {
             return caches.delete(cacheName);
           }
+        }),
+        // Take control of all pages immediately
+        self.clients.claim(),
+        // Clear all caches and reload if version changed
+        caches.open(CACHE_NAME).then((cache) => {
+          return cache.keys().then((keys) => {
+            // If cache exists but version is old, clear it
+            if (keys.length > 0) {
+              return cache.delete(request.url);
+            }
+          });
         })
-      );
+      ]);
+    }).then(() => {
+      // Notify all clients to reload
+      return self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: 'SW_UPDATED', version: CACHE_VERSION });
+        });
+      });
     })
   );
-  // Take control of all pages immediately
-  return self.clients.claim();
 });
 

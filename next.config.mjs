@@ -42,12 +42,20 @@ const nextConfig = {
         ],
       },
       {
-        // Prevent aggressive caching of HTML pages
-        source: '/:path*.html',
+        // Prevent aggressive caching of HTML pages (especially for mobile)
+        source: '/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=0, must-revalidate'
+            value: 'no-cache, no-store, must-revalidate, max-age=0'
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache'
+          },
+          {
+            key: 'Expires',
+            value: '0'
           },
         ],
       },

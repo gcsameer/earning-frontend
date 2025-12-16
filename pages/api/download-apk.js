@@ -7,13 +7,21 @@ export default function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Get APK URL from environment variable or use default
-  // In production, set APK_DOWNLOAD_URL in Vercel to your hosted APK
-  const apkUrl = process.env.APK_DOWNLOAD_URL || 
-    'https://your-cdn-url.com/nep-earn.apk' ||
+  // Get APK URL from environment variable
+  // Priority: NEXT_PUBLIC_APK_DOWNLOAD_URL > APK_DOWNLOAD_URL > public folder
+  const apkUrl = 
+    process.env.NEXT_PUBLIC_APK_DOWNLOAD_URL || 
+    process.env.APK_DOWNLOAD_URL || 
     '/nep-earn.apk'; // Fallback to public folder
 
-  // Redirect to APK URL
-  return res.redirect(307, apkUrl);
+  // If it's a relative path (starts with /), it's from public folder
+  // Otherwise, it's an external URL - redirect to it
+  if (apkUrl.startsWith('/')) {
+    // Serve from public folder
+    return res.redirect(307, apkUrl);
+  } else {
+    // Redirect to external URL
+    return res.redirect(307, apkUrl);
+  }
 }
 

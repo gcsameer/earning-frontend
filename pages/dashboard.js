@@ -361,12 +361,15 @@ export default function Dashboard() {
           </div>
         </div>
         <p className="text-sm text-slate-300 mb-4">
-          Earn coins on the go! Download our Android app and enjoy all features with a better mobile experience.
+          Earn coins on the go! Download our Android app and enjoy all features with a better mobile experience. 
+          The app includes AdMob ads for earning opportunities.
         </p>
         <a
           href="/api/download-apk"
           download="NepEarn.apk"
-          className="btn w-full flex items-center justify-center gap-2 py-4 text-lg"
+          className="btn w-full flex items-center justify-center gap-2 py-4 text-lg hover:scale-105 transition-transform"
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <span className="text-2xl">⬇️</span>
           <span>Download APK</span>
@@ -374,6 +377,11 @@ export default function Dashboard() {
         <p className="text-xs text-slate-500 mt-3 text-center">
           Version 1.0.0 • Android 5.0+ • Size: ~25 MB
         </p>
+        {process.env.NEXT_PUBLIC_APK_DOWNLOAD_URL && (
+          <p className="text-xs text-emerald-400 mt-2 text-center">
+            ✅ APK URL configured
+          </p>
+        )}
       </div>
     </div>
   );

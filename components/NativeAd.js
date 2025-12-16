@@ -10,74 +10,75 @@ export default function NativeAd({
 }) {
   const adRef = useRef(null);
   const pushedRef = useRef(false);
-  const adClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || 'ca-pub-8858320671117320';
-  const adUnitId = '3814777375'; // Native Advanced ad unit ID
+  const adMobAppId = process.env.NEXT_PUBLIC_ADMOB_APP_ID || 'ca-app-pub-8858320671117320';
+  const adUnitId = process.env.NEXT_PUBLIC_ADMOB_NATIVE_AD_UNIT || '3814777375'; // Native Advanced ad unit ID
+  const fullAdUnitId = `${adMobAppId}/${adUnitId}`;
 
   useEffect(() => {
-    if (!adClientId || !adUnitId || typeof window === 'undefined') {
+    if (!adMobAppId || !adUnitId || typeof window === 'undefined') {
       console.warn('NativeAd: Missing config', { 
-        adClientId: !!adClientId, 
+        adMobAppId: !!adMobAppId, 
         adUnitId: !!adUnitId,
         hasWindow: typeof window !== 'undefined'
       });
       return;
     }
 
-    // Initialize adsbygoogle if not already initialized
+    // Initialize AdMob SDK if not already initialized
     if (!window.adsbygoogle) {
       window.adsbygoogle = window.adsbygoogle || [];
     }
 
-    // Wait for AdSense script to load and DOM element to be ready
+    // Wait for AdMob script to load and DOM element to be ready
     let attempts = 0;
-    const maxAttempts = 100; // 10 seconds max wait (increased for slower connections)
+    const maxAttempts = 100; // 10 seconds max wait
     
-    const checkAdSense = setInterval(() => {
+    const checkAdMob = setInterval(() => {
       attempts++;
       
-      // Check if AdSense script is loaded
+      // Check if AdMob script is loaded
       const scriptLoaded = typeof window.adsbygoogle !== 'undefined' && 
                           window.adsbygoogle && 
                           window.adsbygoogle.loaded !== false;
       
       if (scriptLoaded && adRef.current && !pushedRef.current) {
         try {
-          // Push the native ad configuration
+          // Push the AdMob native ad configuration
           window.adsbygoogle.push({});
           pushedRef.current = true;
-          clearInterval(checkAdSense);
-          console.log('✅ NativeAd: Ad pushed successfully', { 
+          clearInterval(checkAdMob);
+          console.log('✅ NativeAd: AdMob native ad pushed successfully', { 
             adUnitId,
-            adClientId: adClientId.substring(0, 20) + '...'
+            fullId: fullAdUnitId.substring(0, 30) + '...'
           });
         } catch (error) {
-          console.error('❌ NativeAd push error:', error);
-          clearInterval(checkAdSense);
+          console.error('❌ NativeAd AdMob push error:', error);
+          clearInterval(checkAdMob);
         }
       } else if (attempts >= maxAttempts) {
-        console.warn('⚠️ NativeAd: Timeout waiting for AdSense', {
+        console.warn('⚠️ NativeAd: Timeout waiting for AdMob SDK', {
           attempts,
           scriptLoaded,
           hasElement: !!adRef.current,
           adUnitId,
           adsbygoogleExists: typeof window.adsbygoogle !== 'undefined'
         });
-        clearInterval(checkAdSense);
+        clearInterval(checkAdMob);
       }
     }, 100);
 
     // Cleanup
     return () => {
-      clearInterval(checkAdSense);
+      clearInterval(checkAdMob);
     };
-  }, [adClientId, adUnitId]);
+  }, [adMobAppId, adUnitId, fullAdUnitId]);
 
-  if (!adClientId || !adUnitId) {
+  if (!adMobAppId || !adUnitId) {
     return (
       <div className={className} style={style}>
         <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 text-center" style={{ minHeight: '100px' }}>
           <p className="text-slate-400 text-sm">📢 Native Advertisement</p>
-          <p className="text-slate-500 text-xs mt-1">Native ad unit not configured</p>
+          <p className="text-slate-500 text-xs mt-1">AdMob native ad unit not configured</p>
         </div>
       </div>
     );
@@ -93,7 +94,7 @@ export default function NativeAd({
           textAlign: 'center', 
           minHeight: '100px' 
         }}
-        data-ad-client={adClientId}
+        data-ad-client={adMobAppId}
         data-ad-slot={adUnitId}
         data-ad-format="native"
         data-full-width-responsive="true"

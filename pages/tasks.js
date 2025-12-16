@@ -206,7 +206,7 @@ export default function Tasks() {
           
           {/* Banner Ad at the top of tasks list */}
           <AdUnit 
-            adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_TASKS_TOP}
+            adUnitId={process.env.NEXT_PUBLIC_ADMOB_BANNER_UNIT || process.env.NEXT_PUBLIC_ADSENSE_SLOT_TASKS_TOP || '6142924791'}
             className="mb-4"
           />
 
@@ -308,7 +308,7 @@ export default function Tasks() {
 
             {/* Ad at the bottom of tasks list */}
             <AdUnit 
-              adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_TASKS_BOTTOM}
+              adUnitId={process.env.NEXT_PUBLIC_ADMOB_BANNER_UNIT || process.env.NEXT_PUBLIC_ADSENSE_SLOT_TASKS_BOTTOM || '6142924791'}
               className="mt-4"
             />
           </div>

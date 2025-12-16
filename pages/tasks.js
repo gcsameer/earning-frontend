@@ -299,7 +299,7 @@ export default function Tasks() {
                 {/* Show ad after every 3rd task */}
                 {(index + 1) % 3 === 0 && index < tasks.length - 1 && (
                   <AdUnit 
-                    adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_TASKS_INLINE}
+                    adUnitId={process.env.NEXT_PUBLIC_ADMOB_BANNER_UNIT || process.env.NEXT_PUBLIC_ADSENSE_SLOT_TASKS_INLINE || '6142924791'}
                     className="my-4"
                   />
                 )}

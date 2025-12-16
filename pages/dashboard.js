@@ -352,8 +352,17 @@ export default function Dashboard() {
       {/* Mobile App Download Card */}
       <div className="card fade-in">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
-            <span className="text-3xl">📱</span>
+          <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30 overflow-hidden">
+            <img 
+              src="/logo.png" 
+              alt="NepEarn Logo" 
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'block';
+              }}
+            />
+            <span className="text-3xl hidden">📱</span>
           </div>
           <div>
             <h2 className="text-xl font-bold mb-1">Download Mobile App</h2>
@@ -362,7 +371,7 @@ export default function Dashboard() {
         </div>
         <p className="text-sm text-slate-300 mb-4">
           Earn coins on the go! Download our Android app and enjoy all features with a better mobile experience. 
-          The app includes AdMob ads for earning opportunities.
+          The app includes all features from web: games, daily bonus, streak, analytics, and more!
         </p>
         <a
           href="/api/download-apk"
@@ -377,9 +386,13 @@ export default function Dashboard() {
         <p className="text-xs text-slate-500 mt-3 text-center">
           Version 1.0.0 • Android 5.0+ • Size: ~25 MB
         </p>
-        {process.env.NEXT_PUBLIC_APK_DOWNLOAD_URL && (
+        {process.env.NEXT_PUBLIC_APK_DOWNLOAD_URL ? (
           <p className="text-xs text-emerald-400 mt-2 text-center">
-            ✅ APK URL configured
+            ✅ APK URL configured - Ready to download!
+          </p>
+        ) : (
+          <p className="text-xs text-yellow-400 mt-2 text-center">
+            ⚠️ APK URL not configured. Set NEXT_PUBLIC_APK_DOWNLOAD_URL in Vercel.
           </p>
         )}
       </div>

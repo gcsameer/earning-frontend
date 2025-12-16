@@ -66,9 +66,13 @@ export default function Tasks() {
     setErr(null);
     setMsg(null);
 
-    // Offerwall task => open offerwall page
+    // Offerwall tasks => open respective offerwall page
     if (t.type === "offerwall") {
       router.push("/offerwall");
+      return;
+    }
+    if (t.type === "tapjoy_offerwall") {
+      router.push("/tapjoy-offerwall");
       return;
     }
 
@@ -238,6 +242,12 @@ export default function Tasks() {
                         </p>
                       )}
 
+                      {t.type === "tapjoy_offerwall" && (
+                        <p className="text-xs opacity-70 mt-1">
+                          Opens Tapjoy Offerwall (earn by completing offers)
+                        </p>
+                      )}
+
                                {t.type === "scratch_card" && (
                                  <p className="text-xs opacity-70 mt-1">
                                    🎫 Scratch and win 25-100 coins instantly!
@@ -274,7 +284,9 @@ export default function Tasks() {
                           Starting...
                         </span>
                       ) : t.type === "offerwall" ? (
-                        "Open Offerwall"
+                        "Open CPX Offerwall"
+                      ) : t.type === "tapjoy_offerwall" ? (
+                        "Open Tapjoy Offerwall"
                       ) : ["scratch_card", "spin_wheel", "puzzle", "quiz"].includes(t.type) ? (
                         "🎮 Play"
                       ) : (

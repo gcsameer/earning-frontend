@@ -14,7 +14,14 @@ export default function NativeAd({
   const adUnitId = '3814777375'; // Native Advanced ad unit ID
 
   useEffect(() => {
-    if (!adClientId || !adUnitId || typeof window === 'undefined') return;
+    if (!adClientId || !adUnitId || typeof window === 'undefined') {
+      console.warn('NativeAd: Missing config', { 
+        adClientId: !!adClientId, 
+        adUnitId: !!adUnitId,
+        hasWindow: typeof window !== 'undefined'
+      });
+      return;
+    }
 
     // Initialize adsbygoogle if not already initialized
     if (!window.adsbygoogle) {
@@ -23,32 +30,38 @@ export default function NativeAd({
 
     // Wait for AdSense script to load and DOM element to be ready
     let attempts = 0;
-    const maxAttempts = 50; // 5 seconds max wait
+    const maxAttempts = 100; // 10 seconds max wait (increased for slower connections)
     
     const checkAdSense = setInterval(() => {
       attempts++;
       
-      if (window.adsbygoogle && adRef.current && !pushedRef.current) {
+      // Check if AdSense script is loaded
+      const scriptLoaded = typeof window.adsbygoogle !== 'undefined' && 
+                          window.adsbygoogle && 
+                          window.adsbygoogle.loaded !== false;
+      
+      if (scriptLoaded && adRef.current && !pushedRef.current) {
         try {
           // Push the native ad configuration
           window.adsbygoogle.push({});
           pushedRef.current = true;
           clearInterval(checkAdSense);
-          if (process.env.NODE_ENV === 'development') {
-            console.log('NativeAd: Ad pushed successfully', { adUnitId });
-          }
+          console.log('✅ NativeAd: Ad pushed successfully', { 
+            adUnitId,
+            adClientId: adClientId.substring(0, 20) + '...'
+          });
         } catch (error) {
-          console.error('NativeAd push error:', error);
+          console.error('❌ NativeAd push error:', error);
           clearInterval(checkAdSense);
         }
       } else if (attempts >= maxAttempts) {
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('NativeAd: Timeout waiting for AdSense', {
-            hasScript: !!window.adsbygoogle, 
-            hasElement: !!adRef.current,
-            adUnitId 
-          });
-        }
+        console.warn('⚠️ NativeAd: Timeout waiting for AdSense', {
+          attempts,
+          scriptLoaded,
+          hasElement: !!adRef.current,
+          adUnitId,
+          adsbygoogleExists: typeof window.adsbygoogle !== 'undefined'
+        });
         clearInterval(checkAdSense);
       }
     }, 100);

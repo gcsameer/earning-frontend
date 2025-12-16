@@ -13,9 +13,11 @@ export default function AdUnit({
 
   useEffect(() => {
     if (!adClientId || !adSlot || typeof window === 'undefined') {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('AdUnit: Missing config', { adClientId, adSlot });
-      }
+      console.warn('AdUnit: Missing config', { 
+        adClientId: !!adClientId, 
+        adSlot: !!adSlot,
+        hasWindow: typeof window !== 'undefined'
+      });
       return;
     }
 
@@ -26,32 +28,38 @@ export default function AdUnit({
 
     // Wait for AdSense script to load and DOM element to be ready
     let attempts = 0;
-    const maxAttempts = 50; // 5 seconds max wait
+    const maxAttempts = 100; // 10 seconds max wait (increased for slower connections)
     
     const checkAdSense = setInterval(() => {
       attempts++;
       
-      if (window.adsbygoogle && adRef.current && !pushedRef.current) {
+      // Check if AdSense script is loaded
+      const scriptLoaded = typeof window.adsbygoogle !== 'undefined' && 
+                          window.adsbygoogle && 
+                          window.adsbygoogle.loaded !== false;
+      
+      if (scriptLoaded && adRef.current && !pushedRef.current) {
         try {
           // Push the ad configuration
           window.adsbygoogle.push({});
           pushedRef.current = true;
           clearInterval(checkAdSense);
-          if (process.env.NODE_ENV === 'development') {
-            console.log('AdUnit: Ad pushed successfully', { adSlot });
-          }
+          console.log('✅ AdUnit: Ad pushed successfully', { 
+            adSlot,
+            adClientId: adClientId.substring(0, 20) + '...'
+          });
         } catch (error) {
-          console.error('AdSense push error:', error);
+          console.error('❌ AdSense push error:', error);
           clearInterval(checkAdSense);
         }
       } else if (attempts >= maxAttempts) {
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('AdUnit: Timeout waiting for AdSense', {
-            hasScript: !!window.adsbygoogle, 
-            hasElement: !!adRef.current,
-            adSlot 
-          });
-        }
+        console.warn('⚠️ AdUnit: Timeout waiting for AdSense', {
+          attempts,
+          scriptLoaded,
+          hasElement: !!adRef.current,
+          adSlot,
+          adsbygoogleExists: typeof window.adsbygoogle !== 'undefined'
+        });
         clearInterval(checkAdSense);
       }
     }, 100);

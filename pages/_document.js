@@ -14,11 +14,12 @@ export default function Document() {
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         
-        {/* Google AdSense Verification Code - ONLY AdSense/AdMob allowed */}
+        {/* Google AdSense Script - ONLY AdSense/AdMob allowed */}
         <script
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8858320671117320"
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClientId || 'ca-pub-8858320671117320'}`}
           crossOrigin="anonymous"
+          data-ad-client={adClientId || 'ca-pub-8858320671117320'}
         />
         
         {/* Block any third-party ad scripts */}

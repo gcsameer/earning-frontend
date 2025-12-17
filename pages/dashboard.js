@@ -293,6 +293,9 @@ export default function Dashboard() {
                       Claim
                     </button>
                   )}
+                  {challenge.completed && challenge.claimed && (
+                    <span className="text-xs text-slate-400">Already claimed</span>
+                  )}
                 </div>
               </div>
             ))}

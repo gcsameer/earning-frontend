@@ -155,12 +155,23 @@ export default function Referrals() {
           </div>
         ) : data ? (
           <>
-            <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-6">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">👥</span>
-                <div>
-                  <p className="text-sm text-slate-400">Total Referred</p>
-                  <p className="text-2xl font-bold text-emerald-400">{data.total_referred || 0}</p>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">👥</span>
+                  <div>
+                    <p className="text-sm text-slate-400">Total Referred</p>
+                    <p className="text-2xl font-bold text-emerald-400">{data.total_referred || 0}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">💰</span>
+                  <div>
+                    <p className="text-sm text-slate-400">Coins Earned</p>
+                    <p className="text-2xl font-bold text-emerald-400">{data.total_referral_coins || 0}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -189,7 +200,7 @@ export default function Referrals() {
                           <p className="text-xs text-slate-500 mt-1">{formatDate(u.joined)}</p>
                         </div>
                       </div>
-                      <div className="text-emerald-400 font-semibold">{u.coins} coins</div>
+                      <div className="text-emerald-400 font-semibold">+{u.referral_coins_earned || 50} coins</div>
                     </div>
                   </div>
                 ))}
